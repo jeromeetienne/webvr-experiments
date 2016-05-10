@@ -308,12 +308,12 @@ function enterFullscreen (element) {
 			// oscillator.frequency.value = 2500;
 			oscillator.start(0);
 			sound.setNodeSource(oscillator);
+
 			sound.setVolume(0.05);
 			sound.setRolloffFactor(2)
 			sound.setRefDistance( 3 );
 			sound.panner.distanceModel = 'exponential'
 			sound.panner.panningModel = 'HRTF'
-
 
 			mesh.add(sound);
 window.sound = sound
