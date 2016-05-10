@@ -2,7 +2,7 @@
 
 <html lang="en">
 <head>
-<title>Web VR Boilerplate</title>
+<title>WebVR Demo</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no">
 <meta name="mobile-web-app-capable" content="yes">
@@ -51,6 +51,8 @@ canvas {
     <i class="fa fa-arrows-alt" id='fullscreenButton'></i>
     <i class="fa fa-eye" id='vrButton'></i>
     <i class="fa fa-star" id='resetButton' title='reset position'></i>
+    <i class="fa fa-volume-off" id='muteButton' title='mute sound'></i>
+    <i class="fa fa-volume-up" id='unmuteButton' title='unmute sound'></i>
   </div>
 
 </body>
@@ -95,12 +97,39 @@ document.body.appendChild(renderer.domElement);
 var scene = new THREE.Scene();
 
 // Create a three.js camera.
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+var camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 10000);
 
 var listener = new THREE.AudioListener();
 camera.add( listener );
 
 var audioLoader = new THREE.AudioLoader();
+function toggleMute(){
+	// debugger
+	var isMuted = listener.getMasterVolume() === 0.0 ? true : false 
+	if( isMuted ){
+		listener.setMasterVolume(1.0)
+	}else{
+		listener.setMasterVolume(0.0)
+	}
+	
+	updateMuteButton()
+}
+function updateMuteButton(){
+	var isMuted = listener.getMasterVolume() === 0.0 ? true : false 
+	if( isMuted ){
+		document.querySelector('#unmuteButton').style.display = 'initial'				
+		document.querySelector('#muteButton').style.display = 'none'
+	}else{
+		document.querySelector('#unmuteButton').style.display = 'none'
+		document.querySelector('#muteButton').style.display = 'initial'		
+	}
+}
+
+// listener.setMasterVolume(0.0)
+listener.setMasterVolume(1.0)
+updateMuteButton()
+
+
 
 // Apply VR headset positional data to camera.
 var controls = new THREE.VRControls(camera);
@@ -108,26 +137,6 @@ var controls = new THREE.VRControls(camera);
 // Apply VR stereo rendering to renderer.
 var effect = new THREE.VREffect(renderer);
 effect.setSize(window.innerWidth, window.innerHeight);
-
-// 
-// // Add a repeating grid as a skybox.
-// var boxWidth = 50;
-// var loader = new THREE.TextureLoader();
-// loader.load('images/box.png', function onTextureLoaded(texture) {
-// 	texture.wrapS = THREE.RepeatWrapping;
-// 	texture.wrapT = THREE.RepeatWrapping;
-// 	texture.repeat.set(boxWidth, boxWidth);
-// 	
-// 	var geometry = new THREE.BoxGeometry(boxWidth, boxWidth, boxWidth);
-// 	var material = new THREE.MeshBasicMaterial({
-// 		map: texture,
-// 		color: 0x01BE00,
-// 		side: THREE.BackSide
-// 	});
-// 	
-// 	var skybox = new THREE.Mesh(geometry, material);
-// 	scene.add(skybox);
-// });
 
 // Get the VRDisplay and save it for later.
 var vrDisplay = null;
@@ -197,6 +206,15 @@ document.querySelector('#vrButton').addEventListener('click', function() {
 });
 document.querySelector('#resetButton').addEventListener('click', function() {
 	vrDisplay.resetPose();
+});
+
+document.querySelector('#muteButton').addEventListener('click', function() {
+	toggleMute()
+});
+
+
+document.querySelector('#unmuteButton').addEventListener('click', function() {
+	toggleMute()
 });
 
 function enterFullscreen (element) {
@@ -274,6 +292,7 @@ function enterFullscreen (element) {
 			// audioLoader.load( 'sounds/179142__jaraxe__zombie-yell2.wav', function( buffer ) {
 			// 	sound.setBuffer( buffer );
 			// 	// sound.setRefDistance( 20 );
+			// 	// sound.setRolloffFactor(2)
 			// 	sound.setLoop(true);
 			// 	sound.setVolume(0.2);
 			// 	sound.play();
@@ -285,21 +304,31 @@ function enterFullscreen (element) {
 			window.oscillator = oscillator
 			oscillator.type = 'sawtooth';
 			oscillator.frequency.value = 144;
-			// oscillator.start(0);
+			// oscillator.type = 'sine';
+			// oscillator.frequency.value = 2500;
+			oscillator.start(0);
 			sound.setNodeSource(oscillator);
-			// sound.setRefDistance( 20 );
 			sound.setVolume(0.05);
+			sound.setRolloffFactor(2)
+			sound.setRefDistance( 3 );
+			sound.panner.distanceModel = 'exponential'
+			sound.panner.panningModel = 'HRTF'
+
+
 			mesh.add(sound);
+window.sound = sound
 
 			var velocity = new THREE.Vector3
-			var speed = 0.1
+			var speed = 0.05
 			var direction = 0, distance = 1;
 			initInitialPosition()
 
 			function initInitialPosition(){
-				direction = THREE.Math.randFloat(0, Math.PI*2)
+				// direction = THREE.Math.randFloat(0, Math.PI*2)
 				// direction += Math.PI/2
-				distance = 8 + THREE.Math.randFloatSpread(4)
+				direction = 3*Math.PI/2
+				// distance = 8 + THREE.Math.randFloatSpread(4)
+				distance = 10
 				mesh.position.x = distance * Math.cos(direction) 
 				mesh.position.z = distance * Math.sin(direction)
 				mesh.lookAt(scene.position)
@@ -308,7 +337,6 @@ function enterFullscreen (element) {
 				velocity.z = -speed * Math.sin(direction)
 			}
 			
-			
 			var clock = new THREE.Clock
 			onRenderFcts.push(function(){
 				var deltaAngle = clock.getDelta() * Math.PI
@@ -316,7 +344,7 @@ function enterFullscreen (element) {
 
 				mesh.position.add(velocity)
 				
-				if( mesh.position.length() < 2 ){
+				if( mesh.position.length() < 1 ){
 					initInitialPosition()
 				}
 			})

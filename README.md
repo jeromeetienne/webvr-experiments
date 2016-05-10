@@ -9,5 +9,6 @@ Thanks to @borismus and his fantastic work on
 - http://jeromeetienne.github.io/webvr-experiment/original.html
 
 ### Changelog
-- added icon with font awesome
+- added toggle mute function
+- added icons with font awesome - not too nice icons - but easy and free
 - cloned webvr-polyfill example - https://github.com/borismus/webvr-polyfill
