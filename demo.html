@@ -30,6 +30,9 @@ canvas {
 	bottom: 0;
 	right: 0;
 	z-index: 1;
+	/*to prevent mouse selection of the button*/
+	user-select: none;
+	-webkit-user-select: none;
 }
 #buttons i {
 	color: #ccc;
@@ -48,11 +51,11 @@ canvas {
 <body>
 
   <div id="buttons">
+    <i class="fa fa-volume-off" id='muteButton' title='mute sound'></i>
+    <i class="fa fa-volume-up" id='unmuteButton' title='unmute sound'></i>
     <i class="fa fa-arrows-alt" id='fullscreenButton'></i>
     <i class="fa fa-eye" id='vrButton'></i>
     <i class="fa fa-star" id='resetButton' title='reset position'></i>
-    <i class="fa fa-volume-off" id='muteButton' title='mute sound'></i>
-    <i class="fa fa-volume-up" id='unmuteButton' title='unmute sound'></i>
   </div>
 
 </body>
@@ -240,7 +243,7 @@ function enterFullscreen (element) {
 
 
 //////////////////////////////////////////////////////////////////////////////////
-//		Comments
+//		add the skybox+ground
 //////////////////////////////////////////////////////////////////////////////////
 ;(function(){
 	var boxWidth = 50;

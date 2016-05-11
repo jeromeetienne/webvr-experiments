@@ -101,21 +101,6 @@ var effect = new THREE.VREffect(renderer);
 effect.setSize(window.innerWidth, window.innerHeight);
 
 
-// Get the VRDisplay and save it for later.
-var vrDisplay = null;
-navigator.getVRDisplays().then(function(displays) {
-	if (displays.length > 0) {
-		vrDisplay = displays[0];
-	}
-	
-	if( vrDisplay !== null ){
-		if( vrDisplay.capabilities.canPresent !== true ){
-			document.querySelector('#vrButton').style.display = 'none'
-		}
-	}
-});
-
-
 // Add a repeating grid as a skybox.
 var boxWidth = 5;
 var loader = new THREE.TextureLoader();
@@ -134,6 +119,21 @@ loader.load('images/box.png', function onTextureLoaded(texture) {
 	var skybox = new THREE.Mesh(geometry, material);
 	scene.add(skybox);
 });
+
+// Get the VRDisplay and save it for later.
+var vrDisplay = null;
+navigator.getVRDisplays().then(function(displays) {
+	if (displays.length > 0) {
+		vrDisplay = displays[0];
+	}
+	
+	if( vrDisplay !== null ){
+		if( vrDisplay.capabilities.canPresent !== true ){
+			document.querySelector('#vrButton').style.display = 'none'
+		}
+	}
+});
+
 
 // Create 3D objects.
 var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
@@ -179,12 +179,15 @@ function onResize() {
 	camera.updateProjectionMatrix();
 }
 
-// Resize the WebGL canvas when we resize and also when we change modes.
-window.addEventListener('resize', onResize);
-window.addEventListener('vrdisplaypresentchange', function onVRDisplayPresentChange() {
+function onVRDisplayPresentChange() {
 	console.log('onVRDisplayPresentChange');
 	onResize();
-});
+}
+
+
+// Resize the WebGL canvas when we resize and also when we change modes.
+window.addEventListener('resize', onResize);
+window.addEventListener('vrdisplaypresentchange', onVRDisplayPresentChange);
 
 // Button click handlers.
 document.querySelector('#fullscreenButton').addEventListener('click', function() {
@@ -209,4 +212,6 @@ function enterFullscreen (element) {
 	}
 }
 
-</script></html>
+</script>
+
+</html>

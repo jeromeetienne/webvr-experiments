@@ -4,9 +4,18 @@ experimenting with webvr.
 Thanks to @borismus and his fantastic work on
 [webvr-polyfill](https://github.com/borismus/webvr-polyfill)
 
-- http://jeromeetienne.github.io/webvr-experiment/demo.html
-- http://jeromeetienne.github.io/webvr-experiment/boilerplate.html
-- http://jeromeetienne.github.io/webvr-experiment/original.html
+### Show, Don't tell
+- [demo](http://jeromeetienne.github.io/webvr-experiment/demo.html)
+- [boilerplate](http://jeromeetienne.github.io/webvr-experiment/boilerplate.html)
+- [original](http://jeromeetienne.github.io/webvr-experiment/original.html)
+
+
+### TODO
+- BUG switch to google cardboard doesn't work on my demo, but work on webvr-polyfill
+- make demo.html playable
+  - aka able to shoot at enemy, die if enemy touch
+  - thor hammer as enemy
+  - stop sound when reseting enemy position
 
 ### Changelog
 - added toggle mute function
