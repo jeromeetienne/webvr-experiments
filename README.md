@@ -7,7 +7,6 @@ Thanks to @borismus and his fantastic work on
 ### Show, Don't tell
 - [demo](http://jeromeetienne.github.io/webvr-experiment/demo.html)
 - [boilerplate](http://jeromeetienne.github.io/webvr-experiment/boilerplate.html)
-- [original](http://jeromeetienne.github.io/webvr-experiment/original.html)
 
 
 ### TODO
