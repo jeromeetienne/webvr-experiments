@@ -166,12 +166,12 @@ function animate(timestamp) {
 	var delta = Math.min(timestamp - lastRender, 500);
 	lastRender = timestamp;
 	
-	onRenderFcts.forEach(function(onRenderFct){
-		onRenderFct()
-	})
-	
 	// Update VR headset position and apply to camera.
 	controls.update();
+	
+	onRenderFcts.forEach(function(onRenderFct){
+		onRenderFct(delta)
+	})
 	
 	// Render the scene.
 	effect.render(scene, camera);
@@ -237,12 +237,6 @@ function enterFullscreen (element) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-//		Comments
-//////////////////////////////////////////////////////////////////////////////////
-
-
-
-//////////////////////////////////////////////////////////////////////////////////
 //		add the skybox+ground
 //////////////////////////////////////////////////////////////////////////////////
 ;(function(){
@@ -281,10 +275,92 @@ function enterFullscreen (element) {
 	// debugger;
 })()
 
+//////////////////////////////////////////////////////////////////////////////
+//              Code Separator
+//////////////////////////////////////////////////////////////////////////////
 ;(function(){
-	//////////////////////////////////////////////////////////////////////////////////
-	//		Comments
-	//////////////////////////////////////////////////////////////////////////////////
+
+	var textureLoader = new THREE.TextureLoader();
+	var map = textureLoader.load( "images/sprite0.png" );
+	var material = new THREE.SpriteMaterial( {
+		map: map, 
+		color: 0xffffff, 
+		opacity: 0.2,
+		depthTest: false
+	} );
+	var reticle = new THREE.Sprite( material )
+	reticle.scale.multiplyScalar(0.5)
+	reticle.position.z = -2
+	scene.add(reticle)
+
+window.reticle = reticle
+	
+	// make the reticle in front of the camera
+	onRenderFcts.push(function(){
+		reticle.position.set(0,0,-2)
+		camera.updateMatrixWorld(true)
+		camera.localToWorld(reticle.position)
+	})
+	
+	var hoverDuration = 1.0;
+	var hoverStartedAt = null
+
+	onRenderFcts.push(function(){
+		var mouse = new THREE.Vector2(0,0)
+		// find intersections
+		var raycaster = new THREE.Raycaster();
+		raycaster.setFromCamera( mouse, camera );
+		var intersects = raycaster.intersectObjects( enemiesObject3D );
+		var intersecting = intersects.length > 0 ? true : false
+		var intersectingMesh = intersects.length > 0 ? intersects[0].object : null
+		// console.log('intersecting', intersecting)
+		
+		
+		// start hovering if needed
+		if( intersecting === true ){
+			if( hoverStartedAt === null ){
+				hoverStartedAt = Date.now()/1000;
+		console.log('intersecting', intersects[0])
+			}
+		}
+
+		// stop hovering if needed
+		if( intersecting === false ){
+		 	if( hoverStartedAt !== null ){
+				hoverStartedAt = null
+			}
+		}
+
+		if( hoverStartedAt !== null ){
+			var hoverSince = Date.now()/1000 - hoverStartedAt;
+			
+			if( hoverSince >= hoverDuration ){
+				hoverStartedAt = null
+				// var mesh
+				intersectingMesh.userData.initInitialPosition()
+			}
+		}
+		
+		
+		if( hoverStartedAt !== null ){
+			var hoverSince = Date.now()/1000 - hoverStartedAt;
+			var angle = - hoverSince/hoverDuration * Math.PI * 2
+			reticle.material.rotation = angle
+			reticle.material.opacity = 0.6	
+		}else{
+			reticle.material.rotation = 0	
+			reticle.material.opacity = 0.2	
+		}
+	})
+})()
+
+//////////////////////////////////////////////////////////////////////////////
+//              Code Separator
+//////////////////////////////////////////////////////////////////////////////
+
+var enemiesObject3D = []
+
+;(function(){
 	var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
 	var material = new THREE.MeshNormalMaterial();
 	var monster = new THREE.Mesh(geometry, material);
@@ -292,6 +368,9 @@ function enterFullscreen (element) {
 	for(var i = 0; i < 1; i++){
 		;(function(){
 			var mesh = monster.clone()
+						mesh.userData.initInitialPosition = initInitialPosition
+
+			enemiesObject3D.push(mesh)
 			scene.add(mesh)
 			
 			// add sound
@@ -323,7 +402,6 @@ function enterFullscreen (element) {
 			sound.panner.panningModel = 'HRTF'
 
 			mesh.add(sound);
-window.sound = sound
 
 			var velocity = new THREE.Vector3
 			var speed = 0.05
@@ -343,6 +421,7 @@ window.sound = sound
 				velocity.x = -speed * Math.cos(direction)
 				velocity.z = -speed * Math.sin(direction)
 			}
+			
 			
 			var clock = new THREE.Clock
 			onRenderFcts.push(function(){
