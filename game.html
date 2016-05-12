@@ -315,7 +315,7 @@ function enterFullscreen (element) {
 			var canvasY	= (-position.z / mapRadius) * (0.9*canvas.height/2)
 			
 			context.save()
-			context.fillStyle	= "rgba(127,127,127,1.0)"			
+			context.fillStyle = "rgba(127,127,127,1.0)"			
 			context.translate(canvas.width/2, canvas.height/2)
 			context.translate(-canvasX, -canvasY)
 			context.fillRect(-5,-5, 5, 5)
@@ -356,7 +356,6 @@ function enterFullscreen (element) {
 //////////////////////////////////////////////////////////////////////////////
 
 ;(function(){
-
 	var textureLoader = new THREE.TextureLoader();
 	var map = textureLoader.load( "images/sprite0.png" );
 	var material = new THREE.SpriteMaterial( {
