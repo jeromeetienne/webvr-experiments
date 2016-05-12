@@ -130,8 +130,8 @@ function updateMuteButton(){
 	}
 }
 
-// listener.setMasterVolume(0.0)
-listener.setMasterVolume(1.0)
+listener.setMasterVolume(0.0)	// to start muted
+// listener.setMasterVolume(1.0)	// to start with sound on
 updateMuteButton()
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -276,18 +276,81 @@ function enterFullscreen (element) {
 })()
 
 //////////////////////////////////////////////////////////////////////////////
-//		Code Separator
+//              Handle reticles
 //////////////////////////////////////////////////////////////////////////////
-// ;(function(){
-// 	var promise = new Promise(function(resolve, reject) {
-// 		setTimeout(function(){
-// 			resolve()
-// 		}, 1000)
-// 	}).then(function(){
-// 		alert('expiration')
-// 	});	
-// })()
 
+;(function(){
+
+	var canvas = document.createElement( 'canvas' );
+	canvas.width = 128;
+	canvas.height = 128;
+	var texture = new THREE.CanvasTexture( canvas );
+	var context = canvas.getContext( '2d' );
+
+	function updateDrawing(){
+		// draw a circle
+		context.save()
+		context.clearRect(0,0, canvas.width, canvas.height)
+		context.fillStyle	= "rgba(0,127,0,0.5)";
+		context.beginPath();
+		context.arc(canvas.width/2, canvas.height/2, canvas.width/2, 0, Math.PI*2, true); 
+		context.closePath();
+		context.fill();
+		context.restore()
+
+		// draw the player
+		context.save()
+		context.fillStyle	= "rgba(255,255,255,1.0)"			
+		context.translate(canvas.width/2, canvas.height/2)
+		context.fillRect(-5,-5, 5, 5)
+		context.restore()
+
+		// draw each enemy
+		var mapRadius		= 10
+		enemiesObject3D.forEach(function(enemyObject3D){
+			var position	= enemyObject3D.position.clone()
+			camera.updateMatrixWorld(true)
+			camera.worldToLocal(position)
+			var canvasX	= (-position.x / mapRadius) * (0.9*canvas.width/2)
+			var canvasY	= (-position.z / mapRadius) * (0.9*canvas.height/2)
+			
+			context.save()
+			context.fillStyle	= "rgba(127,127,127,1.0)"			
+			context.translate(canvas.width/2, canvas.height/2)
+			context.translate(-canvasX, -canvasY)
+			context.fillRect(-5,-5, 5, 5)
+			context.restore()
+		})
+		
+		// update the texture
+		texture.needsUpdate = true;
+	}
+	onRenderFcts.push(function(){
+		updateDrawing()
+	})
+
+	// var textureLoader = new THREE.TextureLoader();
+	// var texture = textureLoader.load( "images/sprite0.png" );
+	var material = new THREE.SpriteMaterial( {
+		map: texture, 
+		color: 0xffffff, 
+		// opacity: 0.2,
+		depthTest: false
+	} );
+	var scoreObject3D = new THREE.Sprite( material )
+	scoreObject3D.scale.multiplyScalar(0.5)
+	scoreObject3D.position.x = -1
+	scoreObject3D.position.z = -2
+	scene.add(scoreObject3D)
+// window.scoreObject3D = scoreObject3D
+
+	// make the reticle in front of the camera
+	onRenderFcts.push(function(){
+		scoreObject3D.position.set(-1,0,-2)
+		camera.updateMatrixWorld(true)
+		camera.localToWorld(scoreObject3D.position)
+	})
+})()
 //////////////////////////////////////////////////////////////////////////////
 //              Handle reticles
 //////////////////////////////////////////////////////////////////////////////
@@ -367,15 +430,6 @@ window.reticle = reticle
 		}
 	})
 })()
-//////////////////////////////////////////////////////////////////////////////
-//		Code Separator
-//////////////////////////////////////////////////////////////////////////////
-
-THREE.Audio.prototype.restart = function(){
-	this.stop()
-	this.isPlaying = false
-	this.play()
-}
 
 //////////////////////////////////////////////////////////////////////////////
 //              Code Separator
@@ -388,7 +442,7 @@ var enemiesObject3D = []
 	var material = new THREE.MeshNormalMaterial();
 	var monster = new THREE.Mesh(geometry, material);
 	
-	for(var i = 0; i < 1; i++){
+	for(var i = 0; i < 10; i++){
 		;(function(){
 			var velocity = new THREE.Vector3
 			var speed = 0.05
@@ -440,11 +494,10 @@ var enemiesObject3D = []
 					sound.play()
 				}
 
-				// direction = THREE.Math.randFloat(0, Math.PI*2)
-				// direction += Math.PI/2
-				direction = 3*Math.PI/2
-				// distance = 8 + THREE.Math.randFloatSpread(4)
+				direction = THREE.Math.randFloat(0, Math.PI*2)
+				// direction = 3*Math.PI/2
 				distance = 10
+				distance = 8 + THREE.Math.randFloatSpread(4)
 				mesh.position.x = distance * Math.cos(direction) 
 				mesh.position.z = distance * Math.sin(direction)
 				mesh.lookAt(scene.position)

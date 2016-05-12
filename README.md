@@ -17,6 +17,7 @@ Thanks to @borismus and his fantastic work on
   - stop sound when reseting enemy position
   - handle state via Promise
   - minimap
+  - pointerlock while on desktop
 
 ### Changelog
 - added toggle mute function
