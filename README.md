@@ -11,13 +11,15 @@ Thanks to @borismus and his fantastic work on
 
 ### TODO
 - BUG switch to google cardboard doesn't work on my demo, but work on webvr-polyfill
+  - it was a bug in VREffect.js three.js r76 on github. npm version and dev branch got it right
 - make game.html playable
   - aka able to shoot at enemy, die if enemy touch
   - thor hammer as enemy
   - stop sound when reseting enemy position
   - handle state via Promise
   - minimap
-  - pointerlock while on desktop
+  - make score
+- pointerlock while on desktop - https://github.com/mrdoob/three.js/blob/master/examples/misc_controls_pointerlock.html
 
 ### Changelog
 - added toggle mute function

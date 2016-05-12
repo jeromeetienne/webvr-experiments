@@ -99,7 +99,7 @@ document.body.appendChild(renderer.domElement);
 var scene = new THREE.Scene();
 
 // Create a three.js camera.
-var camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 10000);
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
 
 //////////////////////////////////////////////////////////////////////////////////
 //		Comments
@@ -271,19 +271,131 @@ function enterFullscreen (element) {
 	ground.position.y = -1
 	ground.lookAt(scene.position)
 	scene.add(ground);
-	
-	// debugger;
 })()
 
 //////////////////////////////////////////////////////////////////////////////
-//              Handle reticles
+//              Handle uiPlaneObject3D
+//////////////////////////////////////////////////////////////////////////////
+;(function(){
+
+// return
+	var planeWidth = 2;
+	var planeHeight = 2;
+	var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
+	var material = new THREE.MeshNormalMaterial({
+		wireframe: true,
+		opacity : 0.3,
+		transparent : true, 
+		depthTest: false,
+	});
+	var mesh = new THREE.Mesh(geometry, material);
+	mesh.position.set(0,0,-10)
+	scene.add(mesh);
+
+	// make the reticle in front of the camera
+	onRenderFcts.push(function(){
+		var position = mesh.position
+		position.set(0,0,-10)
+		camera.updateMatrixWorld(true)
+		camera.localToWorld(position)
+		
+		mesh.lookAt(camera.position)
+	})
+	
+	function onResize(){
+		var distance = mesh.position.distanceTo( camera.position )
+		var height = distance * 2 * Math.sin(THREE.Math.degToRad(camera.fov/2))
+		console.log('mesh height', height)
+		mesh.scale.y = height
+
+		mesh.scale.x = mesh.scale.y * camera.aspect
+	}
+	onResize()
+	window.addEventListener('resize', onResize)
+
+	window.uiPlaneObject3D = mesh
+})();
+
+//////////////////////////////////////////////////////////////////////////////
+//              Handle score
 //////////////////////////////////////////////////////////////////////////////
 
 ;(function(){
+	var score = 0
 
 	var canvas = document.createElement( 'canvas' );
-	canvas.width = 128;
+	canvas.width = 256;
 	canvas.height = 128;
+	var texture = new THREE.CanvasTexture( canvas );
+	var context = canvas.getContext( '2d' );
+
+	var material = new THREE.SpriteMaterial( {
+		map: texture, 
+		color: 0xffffff, 
+		depthTest: false
+	} );
+	var scoreObject3D = new THREE.Sprite( material )
+	scoreObject3D.scale.set(2,1,1).multiplyScalar(0.5)
+	// scoreObject3D.position.x = 1
+	// scoreObject3D.position.y = 1
+	// scoreObject3D.position.z = -2
+window.scoreObject3D = scoreObject3D
+	scene.add(scoreObject3D)
+	
+
+	scoreObject3D.userData.onEnemyKilled = function(){
+		score += 1
+		updateDrawing()
+	}
+
+	function updateDrawing(){
+		context.save()
+		context.clearRect(0,0, canvas.width, canvas.height)
+		context.fillStyle = "rgba(255,255,255,0.5)"			
+		context.font = "160px monospace";
+		var scoreString = score
+		context.fillText(scoreString, 10, canvas.height*(1-0.1));
+		context.restore()
+		
+		// update the texture
+		texture.needsUpdate = true;
+	}
+	updateDrawing()
+
+	// make the reticle in front of the camera
+	onRenderFcts.push(function(){
+		var position = scoreObject3D.position
+		position.set(1,0,-2)
+		camera.updateMatrixWorld(true)
+		camera.localToWorld(position)
+	})
+	
+	// function rePosition(){
+	// 	var mouse = new THREE.Vector2(1,1-0.15)
+	// 	// find intersections
+	// 	var raycaster = new THREE.Raycaster();
+	// 	raycaster.setFromCamera( mouse, camera );
+	// 	var intersects = raycaster.intersectObject( uiPlaneObject3D );
+	// 	console.log(intersects)
+	// 	
+	// 	if( intersects.length > 0 ){
+	// 		scoreObject3D.position.copy(intersects[0].point)
+	// 	}
+	// }
+	// onRenderFcts.push(function(){
+	// 	rePosition()
+	// })
+})()
+
+//////////////////////////////////////////////////////////////////////////////
+//              Handle minimap
+//////////////////////////////////////////////////////////////////////////////
+
+;(function(){
+	
+
+	var canvas = document.createElement( 'canvas' );
+	canvas.width = canvas.height = 128;
 	var texture = new THREE.CanvasTexture( canvas );
 	var context = canvas.getContext( '2d' );
 
@@ -337,20 +449,21 @@ function enterFullscreen (element) {
 		// opacity: 0.2,
 		depthTest: false
 	} );
-	var scoreObject3D = new THREE.Sprite( material )
-	scoreObject3D.scale.multiplyScalar(0.5)
-	scoreObject3D.position.x = -1
-	scoreObject3D.position.z = -2
-	scene.add(scoreObject3D)
-// window.scoreObject3D = scoreObject3D
+	var minimapObject3D = new THREE.Sprite( material )
+	minimapObject3D.scale.multiplyScalar(0.5)
+	minimapObject3D.position.x = -1
+	minimapObject3D.position.z = -2
+	scene.add(minimapObject3D)
 
 	// make the reticle in front of the camera
 	onRenderFcts.push(function(){
-		scoreObject3D.position.set(-1,0,-2)
+		var position = minimapObject3D.position
+		position.set(-1,0,-2)
 		camera.updateMatrixWorld(true)
-		camera.localToWorld(scoreObject3D.position)
+		camera.localToWorld(position)
 	})
 })()
+
 //////////////////////////////////////////////////////////////////////////////
 //              Handle reticles
 //////////////////////////////////////////////////////////////////////////////
@@ -414,6 +527,7 @@ window.reticle = reticle
 				hoverStartedAt = null
 				// var mesh
 				intersectingMesh.userData.setInitialPosition()
+				scoreObject3D.userData.onEnemyKilled()
 			}
 		}
 		
@@ -422,7 +536,7 @@ window.reticle = reticle
 			var hoverSince = Date.now()/1000 - hoverStartedAt;
 			var angle = - hoverSince/hoverDuration * Math.PI * 2
 			reticle.material.rotation = angle
-			reticle.material.opacity = 0.6	
+			reticle.material.opacity = 0.6
 		}else{
 			reticle.material.rotation = 0	
 			reticle.material.opacity = 0.2	
@@ -431,7 +545,7 @@ window.reticle = reticle
 })()
 
 //////////////////////////////////////////////////////////////////////////////
-//              Code Separator
+//              Handle Enemies
 //////////////////////////////////////////////////////////////////////////////
 
 var enemiesObject3D = []
@@ -441,7 +555,7 @@ var enemiesObject3D = []
 	var material = new THREE.MeshNormalMaterial();
 	var monster = new THREE.Mesh(geometry, material);
 	
-	for(var i = 0; i < 10; i++){
+	for(var i = 0; i < 1; i++){
 		;(function(){
 			var velocity = new THREE.Vector3
 			var speed = 0.05
@@ -493,10 +607,10 @@ var enemiesObject3D = []
 					sound.play()
 				}
 
-				direction = THREE.Math.randFloat(0, Math.PI*2)
-				// direction = 3*Math.PI/2
+				// direction = THREE.Math.randFloat(0, Math.PI*2)
+				// distance = 8 + THREE.Math.randFloatSpread(4)
+				direction = 3*Math.PI/2
 				distance = 10
-				distance = 8 + THREE.Math.randFloatSpread(4)
 				mesh.position.x = distance * Math.cos(direction) 
 				mesh.position.z = distance * Math.sin(direction)
 				mesh.lookAt(scene.position)
