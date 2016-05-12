@@ -130,8 +130,8 @@ function updateMuteButton(){
 	}
 }
 
-listener.setMasterVolume(0.0)
-// listener.setMasterVolume(1.0)
+// listener.setMasterVolume(0.0)
+listener.setMasterVolume(1.0)
 updateMuteButton()
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -276,8 +276,22 @@ function enterFullscreen (element) {
 })()
 
 //////////////////////////////////////////////////////////////////////////////
-//              Code Separator
+//		Code Separator
 //////////////////////////////////////////////////////////////////////////////
+// ;(function(){
+// 	var promise = new Promise(function(resolve, reject) {
+// 		setTimeout(function(){
+// 			resolve()
+// 		}, 1000)
+// 	}).then(function(){
+// 		alert('expiration')
+// 	});	
+// })()
+
+//////////////////////////////////////////////////////////////////////////////
+//              Handle reticles
+//////////////////////////////////////////////////////////////////////////////
+
 ;(function(){
 
 	var textureLoader = new THREE.TextureLoader();
@@ -320,7 +334,7 @@ window.reticle = reticle
 		if( intersecting === true ){
 			if( hoverStartedAt === null ){
 				hoverStartedAt = Date.now()/1000;
-		console.log('intersecting', intersects[0])
+		// console.log('intersecting', intersects[0])
 			}
 		}
 
@@ -337,7 +351,7 @@ window.reticle = reticle
 			if( hoverSince >= hoverDuration ){
 				hoverStartedAt = null
 				// var mesh
-				intersectingMesh.userData.initInitialPosition()
+				intersectingMesh.userData.setInitialPosition()
 			}
 		}
 		
@@ -353,6 +367,15 @@ window.reticle = reticle
 		}
 	})
 })()
+//////////////////////////////////////////////////////////////////////////////
+//		Code Separator
+//////////////////////////////////////////////////////////////////////////////
+
+THREE.Audio.prototype.restart = function(){
+	this.stop()
+	this.isPlaying = false
+	this.play()
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //              Code Separator
@@ -367,48 +390,56 @@ var enemiesObject3D = []
 	
 	for(var i = 0; i < 1; i++){
 		;(function(){
-			var mesh = monster.clone()
-						mesh.userData.initInitialPosition = initInitialPosition
-
-			enemiesObject3D.push(mesh)
-			scene.add(mesh)
-			
-			// add sound
-			// var sound = new THREE.PositionalAudio( listener );
-			// audioLoader.load( 'sounds/179142__jaraxe__zombie-yell2.wav', function( buffer ) {
-			// 	sound.setBuffer( buffer );
-			// 	// sound.setRefDistance( 20 );
-			// 	// sound.setRolloffFactor(2)
-			// 	sound.setLoop(true);
-			// 	sound.setVolume(0.2);
-			// 	sound.play();
-			// });
-			// mesh.add( sound );
-			
-			var sound = new THREE.PositionalAudio( listener );
-			var oscillator = listener.context.createOscillator();
-			window.oscillator = oscillator
-			oscillator.type = 'sawtooth';
-			oscillator.frequency.value = 144;
-			// oscillator.type = 'sine';
-			// oscillator.frequency.value = 2500;
-			oscillator.start(0);
-			sound.setNodeSource(oscillator);
-
-			sound.setVolume(0.05);
-			sound.setRolloffFactor(2)
-			sound.setRefDistance( 3 );
-			sound.panner.distanceModel = 'exponential'
-			sound.panner.panningModel = 'HRTF'
-
-			mesh.add(sound);
-
 			var velocity = new THREE.Vector3
 			var speed = 0.05
 			var direction = 0, distance = 1;
-			initInitialPosition()
 
-			function initInitialPosition(){
+
+			var mesh = monster.clone()
+			enemiesObject3D.push(mesh)
+			scene.add(mesh)
+
+			// add sound
+			var sound = new THREE.PositionalAudio( listener );
+			mesh.add( sound );
+
+			
+			new Promise(function(resolve){
+				audioLoader.load( 'sounds/179142__jaraxe__zombie-yell2.wav', function( buffer ) {
+					sound.setBuffer( buffer );
+					sound.setLoop(true);
+					sound.setVolume(0.2);
+					sound.play()
+					resolve()
+				});				
+				
+				// var oscillator = listener.context.createOscillator();
+				// oscillator.type = 'sawtooth';
+				// oscillator.frequency.value = 144;
+				// // oscillator.type = 'sine';
+				// // oscillator.frequency.value = 2500;
+				// oscillator.start(0);
+				// sound.setNodeSource(oscillator);
+				// sound.setVolume(0.05);
+				// sound.setRolloffFactor(2)
+				// sound.setRefDistance( 3 );
+				// sound.panner.distanceModel = 'exponential'
+				// sound.panner.panningModel = 'HRTF'
+				// resolve()
+			}).then(function(resolve){
+				console.log('sound loaded')
+			})
+			
+			// mesh.add(sound);
+
+
+			mesh.userData.setInitialPosition = function(){
+				if( sound.source.buffer ){
+					sound.stop()
+					sound.isPlaying = false
+					sound.play()
+				}
+
 				// direction = THREE.Math.randFloat(0, Math.PI*2)
 				// direction += Math.PI/2
 				direction = 3*Math.PI/2
@@ -421,19 +452,28 @@ var enemiesObject3D = []
 				velocity.x = -speed * Math.cos(direction)
 				velocity.z = -speed * Math.sin(direction)
 			}
-			
-			
+
 			var clock = new THREE.Clock
-			onRenderFcts.push(function(){
+			mesh.userData.update = function(){
 				var deltaAngle = clock.getDelta() * Math.PI
 				mesh.rotateX( deltaAngle )
 
 				mesh.position.add(velocity)
 				
 				if( mesh.position.length() < 1 ){
-					initInitialPosition()
+					mesh.userData.setInitialPosition()
 				}
+			}
+						
+			//////////////////////////////////////////////////////////////////////////////
+			//		Code Separator
+			//////////////////////////////////////////////////////////////////////////////
+
+			onRenderFcts.push(function(){
+				mesh.userData.update()
 			})
+			
+			mesh.userData.setInitialPosition()
 		})()		
 	}
 

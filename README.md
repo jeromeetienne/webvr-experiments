@@ -11,10 +11,12 @@ Thanks to @borismus and his fantastic work on
 
 ### TODO
 - BUG switch to google cardboard doesn't work on my demo, but work on webvr-polyfill
-- make demo.html playable
+- make game.html playable
   - aka able to shoot at enemy, die if enemy touch
   - thor hammer as enemy
   - stop sound when reseting enemy position
+  - handle state via Promise
+  - minimap
 
 ### Changelog
 - added toggle mute function
