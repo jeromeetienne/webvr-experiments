@@ -25,7 +25,9 @@ Thanks to @borismus and his fantastic work on
 - game state automata
   - instruction screen -> wait for use to start
   - startGame (loading resource) -> gameStarted()
-  - 
+- THREE.Reticle could be useful in three.js
+  - API similar to raycaster
+  - signals mouseEnter/mouseLeave/click
 
 ### Changelog
 - added toggle mute function

@@ -65,8 +65,8 @@ WebVRConfig = {
 	BUFFER_SCALE: 0.5,
 };
 
-document.addEventListener('touchmove', function(e) {
-  e.preventDefault();
+document.addEventListener('touchmove', function(event) {
+  event.preventDefault();
 });
 </script>
 
@@ -81,7 +81,6 @@ document.addEventListener('touchmove', function(e) {
 
 <!-- A polyfill for the WebVR API.  -->
 <script src="vendor/webvr-polyfill.js"></script>
-
 
 <script>
 
@@ -102,7 +101,7 @@ var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
 
 //////////////////////////////////////////////////////////////////////////////////
-//		Comments
+//		Initialisation Audio
 //////////////////////////////////////////////////////////////////////////////////
 var listener = new THREE.AudioListener();
 camera.add( listener );
@@ -398,7 +397,7 @@ window.scoreObject3D = scoreObject3D
 	var texture = new THREE.CanvasTexture( canvas );
 	var context = canvas.getContext( '2d' );
 
-	function updateDrawing(){
+	function redrawMinimap(){
 		// draw a circle
 		context.save()
 		context.clearRect(0,0, canvas.width, canvas.height)
@@ -437,7 +436,7 @@ window.scoreObject3D = scoreObject3D
 		texture.needsUpdate = true;
 	}
 	onRenderFcts.push(function(){
-		updateDrawing()
+		redrawMinimap()
 	})
 
 	// var textureLoader = new THREE.TextureLoader();
@@ -573,8 +572,13 @@ var enemiesObject3D = []
 			new Promise(function(resolve){
 				audioLoader.load( 'sounds/179142__jaraxe__zombie-yell2.wav', function( buffer ) {
 					sound.setBuffer( buffer );
-					sound.setLoop(true);
+					// sound.setLoop(true);
 					sound.setVolume(0.2);
+					sound.setRolloffFactor(2)
+					sound.setRefDistance( 3 );
+					sound.panner.distanceModel = 'exponential'
+					sound.panner.panningModel = 'HRTF'
+
 					sound.play()
 					resolve()
 				});				

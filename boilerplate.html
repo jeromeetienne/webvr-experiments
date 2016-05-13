@@ -46,22 +46,22 @@ canvas {
 </head>
 
 <body>
-
-  <div id="buttons">
-    <i class="fa fa-arrows-alt" id='fullscreenButton'></i>
-    <i class="fa fa-eye" id='vrButton'></i>
-    <i class="fa fa-star" id='resetButton' title='reset position'></i>
-  </div>
-
+	
+	<div id="buttons">
+		<i class="fa fa-arrows-alt" id='fullscreenButton'></i>
+		<i class="fa fa-eye" id='vrButton'></i>
+		<i class="fa fa-star" id='resetButton' title='reset position'></i>
+	</div>
+	
 </body>
 
 <script>
 WebVRConfig = {
-  BUFFER_SCALE: 0.5,
+	BUFFER_SCALE: 0.5,
 };
 
-document.addEventListener('touchmove', function(e) {
-  e.preventDefault();
+document.addEventListener('touchmove', function(event) {
+	event.preventDefault();
 });
 </script>
 
@@ -100,7 +100,6 @@ var controls = new THREE.VRControls(camera);
 // Apply VR stereo rendering to renderer.
 var effect = new THREE.VREffect(renderer);
 effect.setSize(window.innerWidth, window.innerHeight);
-
 
 // Get the VRDisplay and save it for later.
 var vrDisplay = null;
