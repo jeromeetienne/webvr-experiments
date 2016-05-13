@@ -90,6 +90,7 @@ document.addEventListener('touchmove', function(e) {
 <script src="src/Score.js"></script>
 <script src="src/MiniMap.js"></script>
 <script src="src/Reticle.js"></script>
+<script src="src/ReticleUI.js"></script>
 <script src="src/Enemy.js"></script>
 
 <script>
@@ -351,9 +352,19 @@ function enterFullscreen (element) {
 //////////////////////////////////////////////////////////////////////////////
 
 ;(function(){
-	var reticle = new THREEx.Reticle(app)
-	scene.add(reticle.object3d)
+	var reticle = new THREEx.Reticle()
+	var reticleUI = new THREEx.ReticleUI(reticle)
+	scene.add(reticleUI.object3d)
+
+	reticle.hoverDuration = 1.0
+
+	app.reticle = reticle;
 	
+	app.signals.update.add(function(){
+		reticleUI.update()
+		reticle.update()
+	})
+
 	reticle.signals.click.add(function(object3d){
 		object3d.userData.setInitialPosition()
 		app.signals.enemyKilled.dispatch()		
@@ -366,12 +377,25 @@ function enterFullscreen (element) {
 
 app.enemiesObject3D = []
 
+app.enemies = []
+
 ;(function(){
-	for(var i = 0; i < 10; i++){
-		var enemy = new THREEx.Enemy(app)
-		app.enemiesObject3D.push(enemy.object3d)
-		scene.add(enemy.object3d)
-	}
+	
+	new Promise(function(resolve){
+		THREEx.Enemy.loadAssets().then(resolve)
+	}).then(function(){	
+		console.log('assets loaded')
+		for(var i = 0; i < 1; i++){
+		// for(var i = 0; i < 10; i++){
+			var enemy = new THREEx.Enemy(app)
+			app.enemiesObject3D.push(enemy.object3d)
+			app.enemies.push(enemy)
+			scene.add(enemy.object3d)
+		}
+		
+		app.reticle.objects = app.enemiesObject3D
+		
+	})
 })()
 </script>
 

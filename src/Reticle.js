@@ -6,48 +6,29 @@ var THREEx = THREEx || {}
  *
  * @class
  */
-THREEx.Reticle = function(app){
+THREEx.Reticle = function(){
 	var _this = this;
 	
 	this.signals = {
-		click : new Signals.Signal()
+		click : new Signals.Signal(),
+		hoverStart : new Signals.Signal(),
+		hoverProgress : new Signals.Signal(),
+		hoverStop : new Signals.Signal(),
 	}
 	
-	var hoverDuration = 0.5;
+	this.hoverDuration = 0.5;
+	this.objects = []
 	var hoverStartedAt = null
 
 	//////////////////////////////////////////////////////////////////////////////
-	//		init object3d
-	//////////////////////////////////////////////////////////////////////////////
-	var texture = new THREE.TextureLoader().load( "images/sprite0.png" );
-	var material = new THREE.SpriteMaterial( {
-		map: texture, 
-		color: 0xffffff, 
-		opacity: 0.2,
-		depthTest: false
-	} );
-	var reticle = new THREE.Sprite( material )
-	reticle.scale.multiplyScalar(0.5)
-	reticle.position.z = -2
-	this.object3d = reticle
-	
-	// make the reticle in front of the camera
-	app.signals.update.add(function(){
-		reticle.position.set(0,0,-2)
-		camera.updateMatrixWorld(true)
-		camera.localToWorld(reticle.position)
-	})
-	
-	
-	//////////////////////////////////////////////////////////////////////////////
 	//		Handle hover/click state automata
 	//////////////////////////////////////////////////////////////////////////////
-	app.signals.update.add(function(){
+	this.update = function(){
 		var mouse = new THREE.Vector2(0,0)
 		// find intersections
 		var raycaster = new THREE.Raycaster();
 		raycaster.setFromCamera( mouse, camera );
-		var intersects = raycaster.intersectObjects( app.enemiesObject3D );
+		var intersects = raycaster.intersectObjects( _this.objects );
 		var intersecting = intersects.length > 0 ? true : false
 		var intersectingMesh = intersects.length > 0 ? intersects[0].object : null
 		// console.log('intersecting', intersecting)
@@ -57,7 +38,8 @@ THREEx.Reticle = function(app){
 		if( intersecting === true ){
 			if( hoverStartedAt === null ){
 				hoverStartedAt = Date.now()/1000;
-		// console.log('intersecting', intersects[0])
+				_this.signals.hoverStart.dispatch()
+				_this.signals.hoverProgress.dispatch(0.0)
 			}
 		}
 
@@ -65,27 +47,22 @@ THREEx.Reticle = function(app){
 		if( intersecting === false ){
 		 	if( hoverStartedAt !== null ){
 				hoverStartedAt = null
+				_this.signals.hoverStop.dispatch()
 			}
 		}
 
 		if( hoverStartedAt !== null ){
 			var hoverSince = Date.now()/1000 - hoverStartedAt;
+
 			
-			if( hoverSince >= hoverDuration ){
+			if( hoverSince >= _this.hoverDuration ){
 				hoverStartedAt = null
+				_this.signals.hoverProgress.dispatch(1.0)
+				_this.signals.hoverStop.dispatch()
 				_this.signals.click.dispatch(intersectingMesh)
+			}else{
+				_this.signals.hoverProgress.dispatch( hoverSince / _this.hoverDuration )				
 			}
 		}
-		
-		
-		if( hoverStartedAt !== null ){
-			var hoverSince = Date.now()/1000 - hoverStartedAt;
-			var angle = - hoverSince/hoverDuration * Math.PI * 2
-			reticle.material.rotation = angle
-			reticle.material.opacity = 0.6
-		}else{
-			reticle.material.rotation = 0	
-			reticle.material.opacity = 0.2	
-		}
-	})
+	}
 }
