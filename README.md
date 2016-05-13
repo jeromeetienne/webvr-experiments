@@ -10,8 +10,6 @@ Thanks to @borismus and his fantastic work on
 
 
 ### TODO
-- BUG switch to google cardboard doesn't work on my demo, but work on webvr-polyfill
-  - it was a bug in VREffect.js three.js r76 on github. npm version and dev branch got it right
 - make game.html playable
   - aka able to shoot at enemy, die if enemy touch
   - thor hammer as enemy
@@ -28,6 +26,9 @@ Thanks to @borismus and his fantastic work on
 - THREE.Reticle could be useful in three.js
   - API similar to raycaster
   - signals mouseEnter/mouseLeave/click
+- ipad issues
+  - cant go fullscreen
+  - cant come back from stereo
 
 ### Changelog
 - added toggle mute function

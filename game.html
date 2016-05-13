@@ -93,7 +93,7 @@ document.addEventListener('touchmove', function(e) {
 <script src="src/Reticle.js"></script>
 <script src="src/ReticleUI.js"></script>
 <script src="src/Enemy.js"></script>
-
+<script src="http://192.168.128.28:1337/vorlon.js"></script>
 <script>
 
 var app = new Appx.App()
@@ -116,39 +116,8 @@ app.camera = camera
 //////////////////////////////////////////////////////////////////////////////////
 //		Comments
 //////////////////////////////////////////////////////////////////////////////////
-// var listener = new THREE.AudioListener();
-// camera.add( listener );
-// 
-// var audioLoader = new THREE.AudioLoader();
-// function toggleMute(){
-// 	// debugger
-// 	var isMuted = listener.getMasterVolume() === 0.0 ? true : false 
-// 	if( isMuted ){
-// 		listener.setMasterVolume(1.0)
-// 	}else{
-// 		listener.setMasterVolume(0.0)
-// 	}
-// 	
-// 	updateMuteButton()
-// }
-// function updateMuteButton(){
-// 	var isMuted = listener.getMasterVolume() === 0.0 ? true : false 
-// 	if( isMuted ){
-// 		document.querySelector('#unmuteButton').style.display = 'initial'				
-// 		document.querySelector('#muteButton').style.display = 'none'
-// 	}else{
-// 		document.querySelector('#unmuteButton').style.display = 'none'
-// 		document.querySelector('#muteButton').style.display = 'initial'		
-// 	}
-// }
-// 
-// listener.setMasterVolume(0.0)	// to start muted
-// // listener.setMasterVolume(1.0)	// to start with sound on
-// updateMuteButton()
 
-;(function(){
-	app.audio = new Appx.Audio(app)
-})()
+app.audio = new Appx.Audio(app)
 
 //////////////////////////////////////////////////////////////////////////////////
 //		Comments
@@ -346,7 +315,6 @@ function enterFullscreen (element) {
 	app.signals.update.add(function(){
 		miniMap.update()
 	})
-
 })()
 
 //////////////////////////////////////////////////////////////////////////////
@@ -391,7 +359,7 @@ app.enemies = []
 			app.reticle.objects.push(enemy.object3d)
 		}
 		
-
+		// update every enemy
 		app.signals.update.add(function(){
 			app.enemies.forEach(function(enemy){
 				enemy.update()
