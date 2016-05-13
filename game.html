@@ -95,7 +95,7 @@ document.addEventListener('touchmove', function(e) {
 
 <script>
 
-var app = new App()
+var app = new THREEx.App()
 
 // Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
 // Only enable it if you actually need to.
@@ -339,6 +339,10 @@ function enterFullscreen (element) {
 ;(function(){
 	var miniMap = new THREEx.MiniMap(app)
 	scene.add(miniMap.object3d)
+	app.signals.update.add(function(){
+		miniMap.update()
+	})
+
 })()
 
 //////////////////////////////////////////////////////////////////////////////

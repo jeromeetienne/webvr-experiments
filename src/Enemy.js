@@ -4,7 +4,13 @@ THREEx.Enemy = (function(){
 	var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
 	var material = new THREE.MeshNormalMaterial();
 	var monster = new THREE.Mesh(geometry, material);
-	return function(app){
+	
+	/**
+	 * handle the enemy
+	 *
+	 * @class
+	 */
+	return function(){
 		var _this = this;
 		var velocity = new THREE.Vector3
 		var speed = 0.05
@@ -25,11 +31,10 @@ THREEx.Enemy = (function(){
 		sound.play()
 		
 		this.setInitialPosition = function(){
-			// if( sound.source.buffer ){
-				sound.stop()
-				sound.isPlaying = false
-				sound.play()
-			// }
+			// restart the sound
+			sound.stop()
+			sound.isPlaying = false
+			sound.play()
 			
 			// direction = THREE.Math.randFloat(0, Math.PI*2)
 			// distance = 8 + THREE.Math.randFloatSpread(4)
@@ -54,11 +59,11 @@ THREEx.Enemy = (function(){
 				_this.setInitialPosition()
 			}
 		}
-		
+
 		//////////////////////////////////////////////////////////////////////////////
 		//		Code Separator
 		//////////////////////////////////////////////////////////////////////////////
-		// 
+
 		this.setInitialPosition()
 	}
 })()
