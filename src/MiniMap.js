@@ -1,13 +1,13 @@
-var THREEx = THREEx || {}
+var Appx = Appx || {}
 
 
 /**
  * handle the MiniMap
  * @class
  * 
- * @param  {THREEx.App} app [description]
+ * @param  {Appx.App} app [description]
  */
-THREEx.MiniMap = function(app){
+Appx.MiniMap = function(app){
 	var _this = this;
 	
 

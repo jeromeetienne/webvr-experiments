@@ -1,11 +1,11 @@
-var THREEx = THREEx || {}
+var Appx = Appx || {}
 
 /**
  *
  * @class
- * @param {THREEx.Reticle} reticle - the reticle 
+ * @param {Appx.Reticle} reticle - the reticle 
  */
-THREEx.ReticleUI = function(reticle){
+Appx.ReticleUI = function(reticle){
 	var _this = this;
 	
 	var texture = new THREE.TextureLoader().load( "images/sprite0.png" );

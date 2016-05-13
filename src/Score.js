@@ -1,7 +1,7 @@
-var THREEx = THREEx || {}
+var Appx = Appx || {}
 
 
-THREEx.Score = function(app){
+Appx.Score = function(app){
 	var _this = this;
 
 	var score = 0

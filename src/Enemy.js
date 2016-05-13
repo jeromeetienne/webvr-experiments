@@ -1,6 +1,6 @@
-var THREEx = THREEx || {}
+var Appx = Appx || {}
 
-THREEx.Enemy = (function(){
+Appx.Enemy = (function(){
 	var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
 	var material = new THREE.MeshNormalMaterial();
 	var monster = new THREE.Mesh(geometry, material);
@@ -10,7 +10,7 @@ THREEx.Enemy = (function(){
 	 *
 	 * @class
 	 */
-	return function(){
+	return function(app){
 		var _this = this;
 		var velocity = new THREE.Vector3
 		var speed = 0.05
@@ -22,10 +22,10 @@ THREEx.Enemy = (function(){
 		this.object3d.userData.enemy = this
 		
 		// add sound
-		var sound = new THREE.PositionalAudio( listener );
+		var sound = new THREE.PositionalAudio( app.audio.listener );
 		mesh.add( sound );
-		console.assert(THREEx.Enemy.assets.loaded === true )
-		sound.setBuffer( THREEx.Enemy.assets.soundBuffer );
+		console.assert(Appx.Enemy.assets.loaded === true )
+		sound.setBuffer( Appx.Enemy.assets.soundBuffer );
 		sound.setLoop(true);
 		sound.setVolume(0.2);
 		sound.play()
@@ -73,15 +73,15 @@ THREEx.Enemy = (function(){
 //		Assets system
 //////////////////////////////////////////////////////////////////////////////
 
-THREEx.Enemy.assets = {}
-THREEx.Enemy.loadAssets = function(app){
+Appx.Enemy.assets = {}
+Appx.Enemy.loadAssets = function(app){
 	var promise = new Promise(function(resolve){
-		audioLoader.load( 'sounds/179142__jaraxe__zombie-yell2.wav', function( buffer ) {			
-			THREEx.Enemy.assets.soundBuffer = buffer
+		app.audio.audioLoader.load( 'sounds/179142__jaraxe__zombie-yell2.wav', function( buffer ) {			
+			Appx.Enemy.assets.soundBuffer = buffer
 			resolve()
 		});				
 	}).then(function(){
-		THREEx.Enemy.assets.loaded = true
+		Appx.Enemy.assets.loaded = true
 	})
 	
 	return promise

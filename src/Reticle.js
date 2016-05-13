@@ -1,10 +1,10 @@
-var THREEx = THREEx || {}
+var Appx = Appx || {}
 
 /**
- * Provide the logic for a reticle. the display of the reticle in THREEx.ReticleUI
+ * Provide the logic for a reticle. the display of the reticle in Appx.ReticleUI
  * @class
  */
-THREEx.Reticle = function(){
+Appx.Reticle = function(){
 	var _this = this;
 	
 	this.signals = {

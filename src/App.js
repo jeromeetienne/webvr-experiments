@@ -1,6 +1,6 @@
-var THREEx = THREEx || {}
+var Appx = Appx || {}
 
-THREEx.App = function(){
+Appx.App = function(){
 	this.signals = {
 		update : new Signals.Signal(),
 		enemyKilled : new Signals.Signal(),
