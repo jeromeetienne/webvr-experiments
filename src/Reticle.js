@@ -23,17 +23,15 @@ THREEx.Reticle = function(){
 	//////////////////////////////////////////////////////////////////////////////
 	//		Handle hover/click state automata
 	//////////////////////////////////////////////////////////////////////////////
-	this.update = function(){
-		var mouse = new THREE.Vector2(0,0)
-		// find intersections
-		var raycaster = new THREE.Raycaster();
+	var mouse = new THREE.Vector2(0,0)
+	var raycaster = new THREE.Raycaster();
+	this.update = function(camera){
 		raycaster.setFromCamera( mouse, camera );
+
 		var intersects = raycaster.intersectObjects( _this.objects );
 		var intersecting = intersects.length > 0 ? true : false
-		var intersectingMesh = intersects.length > 0 ? intersects[0].object : null
-		// console.log('intersecting', intersecting)
-		
-		
+
+
 		// start hovering if needed
 		if( intersecting === true ){
 			if( hoverStartedAt === null ){
@@ -43,7 +41,7 @@ THREEx.Reticle = function(){
 			}
 		}
 
-		// stop hovering if needed
+		// stop hovering if there is no interesection
 		if( intersecting === false ){
 		 	if( hoverStartedAt !== null ){
 				hoverStartedAt = null
@@ -54,12 +52,11 @@ THREEx.Reticle = function(){
 		if( hoverStartedAt !== null ){
 			var hoverSince = Date.now()/1000 - hoverStartedAt;
 
-			
 			if( hoverSince >= _this.hoverDuration ){
 				hoverStartedAt = null
 				_this.signals.hoverProgress.dispatch(1.0)
 				_this.signals.hoverStop.dispatch()
-				_this.signals.click.dispatch(intersectingMesh)
+				_this.signals.click.dispatch(intersects[0].object)
 			}else{
 				_this.signals.hoverProgress.dispatch( hoverSince / _this.hoverDuration )				
 			}

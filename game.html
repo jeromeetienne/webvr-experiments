@@ -361,8 +361,8 @@ function enterFullscreen (element) {
 	app.reticle = reticle;
 	
 	app.signals.update.add(function(){
+		reticle.update(camera)
 		reticleUI.update()
-		reticle.update()
 	})
 
 	reticle.signals.click.add(function(object3d){
@@ -380,11 +380,9 @@ app.enemiesObject3D = []
 app.enemies = []
 
 ;(function(){
-	
 	new Promise(function(resolve){
 		THREEx.Enemy.loadAssets().then(resolve)
 	}).then(function(){	
-		console.log('assets loaded')
 		for(var i = 0; i < 1; i++){
 		// for(var i = 0; i < 10; i++){
 			var enemy = new THREEx.Enemy(app)
