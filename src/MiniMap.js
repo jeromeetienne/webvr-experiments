@@ -30,8 +30,8 @@ THREEx.MiniMap = function(app){
 
 		// draw each enemy
 		var mapRadius		= 10
-		app.enemiesObject3D.forEach(function(enemyObject3D){
-			var position	= enemyObject3D.position.clone()
+		app.enemies.forEach(function(enemy){
+			var position	= enemy.object3d.position.clone()
 			app.camera.updateMatrixWorld(true)
 			app.camera.worldToLocal(position)
 			var canvasX	= (-position.x / mapRadius) * (0.9*canvas.width/2)

@@ -5,7 +5,7 @@ THREEx.Enemy = (function(){
 	var material = new THREE.MeshNormalMaterial();
 	var monster = new THREE.Mesh(geometry, material);
 	return function(app){
-		
+		var _this = this;
 		var velocity = new THREE.Vector3
 		var speed = 0.05
 		var direction = 0, distance = 1;
@@ -13,6 +13,7 @@ THREEx.Enemy = (function(){
 		
 		var mesh = monster.clone()
 		this.object3d = mesh
+		this.object3d.userData.enemy = this
 		
 		// add sound
 		var sound = new THREE.PositionalAudio( listener );
@@ -23,12 +24,12 @@ THREEx.Enemy = (function(){
 		sound.setVolume(0.2);
 		sound.play()
 		
-		mesh.userData.setInitialPosition = function(){
-			if( sound.source.buffer ){
+		this.setInitialPosition = function(){
+			// if( sound.source.buffer ){
 				sound.stop()
 				sound.isPlaying = false
 				sound.play()
-			}
+			// }
 			
 			// direction = THREE.Math.randFloat(0, Math.PI*2)
 			// distance = 8 + THREE.Math.randFloatSpread(4)
@@ -43,26 +44,22 @@ THREEx.Enemy = (function(){
 		}
 		
 		var clock = new THREE.Clock
-		mesh.userData.update = function(){
+		this.update = function(){
 			var deltaAngle = clock.getDelta() * Math.PI
 			mesh.rotateX( deltaAngle )
 			
 			mesh.position.add(velocity)
 			
 			if( mesh.position.length() < 1 ){
-				mesh.userData.setInitialPosition()
+				_this.setInitialPosition()
 			}
 		}
 		
 		//////////////////////////////////////////////////////////////////////////////
 		//		Code Separator
 		//////////////////////////////////////////////////////////////////////////////
-		
-		onRenderFcts.push(function(){
-			mesh.userData.update()
-		})
-		
-		mesh.userData.setInitialPosition()
+		// 
+		this.setInitialPosition()
 	}
 })()
 

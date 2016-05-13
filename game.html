@@ -97,8 +97,6 @@ document.addEventListener('touchmove', function(e) {
 
 var app = new App()
 
-var onRenderFcts = []
-
 // Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
 // Only enable it if you actually need to.
 var renderer = new THREE.WebGLRenderer({antialias: false});
@@ -181,10 +179,6 @@ function animate(timestamp) {
 	
 	// Update VR headset position and apply to camera.
 	controls.update();
-	
-	onRenderFcts.forEach(function(onRenderFct){
-		onRenderFct(delta)
-	})
 	
 	app.signals.update.dispatch(delta)
 	
@@ -307,7 +301,7 @@ function enterFullscreen (element) {
 	scene.add(mesh);
 
 	// make the reticle in front of the camera
-	onRenderFcts.push(function(){
+	app.signals.update.add(function(){
 		var position = mesh.position
 		position.set(0,0,-10)
 		camera.updateMatrixWorld(true)
@@ -356,8 +350,6 @@ function enterFullscreen (element) {
 	var reticleUI = new THREEx.ReticleUI(reticle)
 	scene.add(reticleUI.object3d)
 
-	reticle.hoverDuration = 1.0
-
 	app.reticle = reticle;
 	
 	app.signals.update.add(function(){
@@ -366,16 +358,15 @@ function enterFullscreen (element) {
 	})
 
 	reticle.signals.click.add(function(object3d){
-		object3d.userData.setInitialPosition()
-		app.signals.enemyKilled.dispatch()		
+		var enemy = object3d.userData.enemy
+		enemy.setInitialPosition()
+		app.signals.enemyKilled.dispatch(enemy)		
 	})
 })()
 
 //////////////////////////////////////////////////////////////////////////////
 //              Handle Enemies
 //////////////////////////////////////////////////////////////////////////////
-
-app.enemiesObject3D = []
 
 app.enemies = []
 
@@ -386,13 +377,18 @@ app.enemies = []
 		for(var i = 0; i < 1; i++){
 		// for(var i = 0; i < 10; i++){
 			var enemy = new THREEx.Enemy(app)
-			app.enemiesObject3D.push(enemy.object3d)
-			app.enemies.push(enemy)
 			scene.add(enemy.object3d)
+
+			app.enemies.push(enemy)
+			app.reticle.objects.push(enemy.object3d)
 		}
 		
-		app.reticle.objects = app.enemiesObject3D
-		
+
+		app.signals.update.add(function(){
+			app.enemies.forEach(function(enemy){
+				enemy.update()
+			})
+		})
 	})
 })()
 </script>
