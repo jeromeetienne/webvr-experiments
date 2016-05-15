@@ -17,7 +17,7 @@ Thanks to @borismus and his fantastic work on
   - handle state via Promise
   - minimap
   - make score
-- TODO find a good way to position minimap+score
+- DONE find a good way to position minimap+score
   - RayCaster to compute the ray from the camera position and mouse position
     - https://github.com/mrdoob/three.js/blob/master/src/core/Raycaster.js
   - Ray.IntersectPlane https://github.com/mrdoob/three.js/blob/master/src/math/Ray.js#L310
