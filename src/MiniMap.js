@@ -64,19 +64,27 @@ Appx.MiniMap = function(app){
 		depthTest: false
 	} );
 	var sprite = new THREE.Sprite( material )
-	sprite.scale.multiplyScalar(0.5)
-	sprite.position.x = -1
-	sprite.position.z = -2
 	// scene.add(sprite)
 	this.object3d	= sprite
 	
 	this.update = function(){
 		updateDrawing()
 		
-		// make the reticle in front of the app.camera
-		var position = sprite.position
-		position.set(-1,0,-2)
-		app.camera.updateMatrixWorld(true)
-		app.camera.localToWorld(position)
+		
+		// compute the plane
+		var coplanarPoint = new THREE.Vector3(0,0,-5)
+		var normal = new THREE.Vector3(0,0,-1)
+		var plane = new THREE.Plane()
+		plane.setFromNormalAndCoplanarPoint(normal, coplanarPoint)
+		plane.applyMatrix4(app.camera.matrixWorld)
+		// compute the ray
+		var isStereo = vrDisplay.isPresenting === true ? true : false
+		var mouse = new THREE.Vector2(-0.9/(isStereo ? 2 : 1),0.8)
+		var raycaster = new THREE.Raycaster()
+		raycaster.setFromCamera(mouse, app.camera)
+		// compute intersection
+		var intersectionPoint = raycaster.ray.intersectPlane(plane)
+		console.assert( intersectionPoint !== null )
+		sprite.position.copy(intersectionPoint)
 	}
 }

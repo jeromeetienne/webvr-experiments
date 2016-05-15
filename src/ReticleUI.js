@@ -21,7 +21,7 @@ Appx.ReticleUI = function(reticle){
 	this.object3d = sprite
 	
 	// make the mesh in front of the camera
-	this.update = function(){
+	this.update = function(camera){
 		sprite.position.set(0,0,-2)
 		camera.updateMatrixWorld(true)
 		camera.localToWorld(sprite.position)

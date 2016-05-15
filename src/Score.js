@@ -17,14 +17,11 @@ Appx.Score = function(app){
 		color: 0xffffff, 
 		depthTest: false
 	} );
-	var scoreObject3D = new THREE.Sprite( material )
-	scoreObject3D.scale.set(2,1,1).multiplyScalar(0.5)
-	// scoreObject3D.position.x = 1
-	// scoreObject3D.position.y = 1
-	// scoreObject3D.position.z = -2
+	var sprite = new THREE.Sprite( material )
+	sprite.scale.set(2,1,1)
 	
 	
-	this.object3d = scoreObject3D
+	this.object3d = sprite
 	
 	function updateDrawing(){
 		context.save()
@@ -40,33 +37,30 @@ Appx.Score = function(app){
 	}
 	updateDrawing()
 
-	// make the reticle in front of the camera
-	app.signals.update.add(function(){
-		var position = scoreObject3D.position
-		position.set(1,0,-2)
-		camera.updateMatrixWorld(true)
-		camera.localToWorld(position)
-	})
 	
 	app.signals.enemyKilled.add(function(){
 		score += 1
 		updateDrawing()
 	})
 
-	// function rePosition(){
-	// 	var mouse = new THREE.Vector2(1,1-0.15)
-	// 	// find intersections
-	// 	var raycaster = new THREE.Raycaster();
-	// 	raycaster.setFromCamera( mouse, camera );
-	// 	var intersects = raycaster.intersectObject( uiPlaneObject3D );
-	// 	console.log(intersects)
-	// 	
-	// 	if( intersects.length > 0 ){
-	// 		scoreObject3D.position.copy(intersects[0].point)
-	// 	}
-	// }
-	// onRenderFcts.push(function(){
-	// 	rePosition()
-	// })
+	this.update = function(){
+		app.camera.updateMatrixWorld();
+		// camera.updateProjectionMatrix();
+		// compute the plane
+		var coplanarPoint = new THREE.Vector3(0,0,-5)
+		var normal = new THREE.Vector3(0,0,-1)
+		var plane = new THREE.Plane()
+		plane.setFromNormalAndCoplanarPoint(normal, coplanarPoint)
+		plane.applyMatrix4(app.camera.matrixWorld)
+		// compute the ray
+		var isStereo = vrDisplay.isPresenting === true ? true : false
+		var mouse = new THREE.Vector2(0.9/(isStereo ? 2 : 1),0.8)
+		var raycaster = new THREE.Raycaster()
+		raycaster.setFromCamera(mouse, app.camera)
+		// compute intersection
+		var intersectionPoint = raycaster.ray.intersectPlane(plane)
+		console.assert( intersectionPoint !== null )
+		sprite.position.copy(intersectionPoint)
+	}
 
 }

@@ -8,7 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css">
+<link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css">
 <style>
 html, body {
 	width: 100%;
@@ -65,8 +65,8 @@ WebVRConfig = {
 	BUFFER_SCALE: 0.5,
 };
 
-document.addEventListener('touchmove', function(e) {
-  e.preventDefault();
+document.addEventListener('touchmove', function(event) {
+	event.preventDefault();
 });
 </script>
 
@@ -93,7 +93,6 @@ document.addEventListener('touchmove', function(e) {
 <script src="src/Reticle.js"></script>
 <script src="src/ReticleUI.js"></script>
 <script src="src/Enemy.js"></script>
-<script src="http://192.168.128.28:1337/vorlon.js"></script>
 <script>
 
 var app = new Appx.App()
@@ -254,48 +253,6 @@ function enterFullscreen (element) {
 	scene.add(ground);
 })()
 
-//////////////////////////////////////////////////////////////////////////////
-//              Handle uiPlaneObject3D
-//////////////////////////////////////////////////////////////////////////////
-;(function(){
-
-// return
-	var planeWidth = 2;
-	var planeHeight = 2;
-	var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
-	var material = new THREE.MeshNormalMaterial({
-		wireframe: true,
-		opacity : 0.3,
-		transparent : true, 
-		depthTest: false,
-	});
-	var mesh = new THREE.Mesh(geometry, material);
-	mesh.position.set(0,0,-10)
-	scene.add(mesh);
-
-	// make the reticle in front of the camera
-	app.signals.update.add(function(){
-		var position = mesh.position
-		position.set(0,0,-10)
-		camera.updateMatrixWorld(true)
-		camera.localToWorld(position)
-		
-		mesh.lookAt(camera.position)
-	})
-	
-	function onResize(){
-		var distance = mesh.position.distanceTo( camera.position )
-		var height = distance * 2 * Math.sin(THREE.Math.degToRad(camera.fov/2))
-		console.log('mesh height', height)
-		mesh.scale.y = height
-
-		mesh.scale.x = mesh.scale.y * camera.aspect
-	}
-	onResize()
-	window.addEventListener('resize', onResize)
-
-	window.uiPlaneObject3D = mesh
-})();
 
 //////////////////////////////////////////////////////////////////////////////
 //              Handle score
@@ -303,6 +260,9 @@ function enterFullscreen (element) {
 ;(function(){
 	var score = new Appx.Score(app);
 	scene.add(score.object3d)
+	app.signals.update.add(function(){
+		score.update()
+	})
 })()
 
 //////////////////////////////////////////////////////////////////////////////
@@ -330,7 +290,7 @@ function enterFullscreen (element) {
 	
 	app.signals.update.add(function(){
 		reticle.update(camera)
-		reticleUI.update()
+		reticleUI.update(camera)
 	})
 
 	reticle.signals.click.add(function(object3d){
@@ -367,6 +327,7 @@ app.enemies = []
 		})
 	})
 })()
+
 </script>
 
 </html>
