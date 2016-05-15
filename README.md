@@ -20,6 +20,14 @@ Thanks to @borismus and his fantastic work on
   - minimap
   - make score
 - TODO find a good way to position minimap+score
+  - RayCaster to compute the ray from the camera position and mouse position
+    - https://github.com/mrdoob/three.js/blob/master/src/core/Raycaster.js
+  - Ray.IntersectPlane https://github.com/mrdoob/three.js/blob/master/src/math/Ray.js#L310
+  - make a THREE.Plane with .setFromNormalAndCoplanarPoint http://threejs.org/docs/index.html#Reference/Math/Plane
+  - normal+coplanarPoint obtained from camera
+  - normal (0,0,1) is from camera.worldToLocal
+  - coplanarPoint camera.worldToLocal(0,0,cameraToUiDistance)
+
 - pointerlock while on desktop - https://github.com/mrdoob/three.js/blob/master/examples/misc_controls_pointerlock.html
 - TODO what is the state automata for player/enemies/game
 - game state automata
