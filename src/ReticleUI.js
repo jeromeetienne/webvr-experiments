@@ -1,12 +1,11 @@
-var THREEx = THREEx || {}
+var Appx = Appx || {}
 
 /**
- * - possible to make the ReticleDisplay.js elsewhere
- * - thus the logic is separated from the style
  *
  * @class
+ * @param {Appx.Reticle} reticle - the reticle 
  */
-THREEx.ReticleUI = function(reticle){
+Appx.ReticleUI = function(reticle){
 	var _this = this;
 	
 	var texture = new THREE.TextureLoader().load( "images/sprite0.png" );
@@ -15,7 +14,7 @@ THREEx.ReticleUI = function(reticle){
 		color: 0xffffff, 
 		opacity: 0.2,
 		depthTest: false
-	} );
+	});
 	var sprite = new THREE.Sprite( material )
 	sprite.scale.multiplyScalar(0.5)
 	sprite.position.z = -2
@@ -27,6 +26,10 @@ THREEx.ReticleUI = function(reticle){
 		camera.updateMatrixWorld(true)
 		camera.localToWorld(sprite.position)
 	}
+	
+	//////////////////////////////////////////////////////////////////////////////
+	//              Code Separator
+	//////////////////////////////////////////////////////////////////////////////
 	
 	reticle.signals.hoverProgress.add(function(progress){
 		var angle = progress * Math.PI * 2

@@ -1,12 +1,10 @@
-var THREEx = THREEx || {}
+var Appx = Appx || {}
 
 /**
- * - possible to make the ReticleDisplay.js elsewhere
- * - thus the logic is separated from the style
- *
+ * Provide the logic for a reticle. the display of the reticle in Appx.ReticleUI
  * @class
  */
-THREEx.Reticle = function(){
+Appx.Reticle = function(){
 	var _this = this;
 	
 	this.signals = {
@@ -17,7 +15,7 @@ THREEx.Reticle = function(){
 	}
 	
 	this.hoverDuration = 0.5;
-	this.objects = []
+	this.objects = []	// TODO put that in this.update() argumentså
 	var hoverStartedAt = null
 
 	//////////////////////////////////////////////////////////////////////////////

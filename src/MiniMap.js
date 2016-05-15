@@ -1,7 +1,13 @@
-var THREEx = THREEx || {}
+var Appx = Appx || {}
 
 
-THREEx.MiniMap = function(app){
+/**
+ * handle the MiniMap
+ * @class
+ * 
+ * @param  {Appx.App} app [description]
+ */
+Appx.MiniMap = function(app){
 	var _this = this;
 	
 
@@ -49,10 +55,6 @@ THREEx.MiniMap = function(app){
 		texture.needsUpdate = true;
 	}
 
-	app.signals.update.add(function(){
-		updateDrawing()
-	})
-
 	// var textureLoader = new THREE.TextureLoader();
 	// var texture = textureLoader.load( "images/sprite0.png" );
 	var material = new THREE.SpriteMaterial( {
@@ -61,18 +63,20 @@ THREEx.MiniMap = function(app){
 		// opacity: 0.2,
 		depthTest: false
 	} );
-	var minimapObject3D = new THREE.Sprite( material )
-	minimapObject3D.scale.multiplyScalar(0.5)
-	minimapObject3D.position.x = -1
-	minimapObject3D.position.z = -2
-	// scene.add(minimapObject3D)
-	this.object3d	= minimapObject3D
-
-	// make the reticle in front of the app.camera
-	app.signals.update.add(function(){
-		var position = minimapObject3D.position
+	var sprite = new THREE.Sprite( material )
+	sprite.scale.multiplyScalar(0.5)
+	sprite.position.x = -1
+	sprite.position.z = -2
+	// scene.add(sprite)
+	this.object3d	= sprite
+	
+	this.update = function(){
+		updateDrawing()
+		
+		// make the reticle in front of the app.camera
+		var position = sprite.position
 		position.set(-1,0,-2)
 		app.camera.updateMatrixWorld(true)
 		app.camera.localToWorld(position)
-	})
+	}
 }

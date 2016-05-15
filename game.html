@@ -87,15 +87,16 @@ document.addEventListener('touchmove', function(e) {
 <script>window.Signals = window.signals; delete window.signals</script>
 
 <script src="src/App.js"></script>
+<script src="src/Audio.js"></script>
 <script src="src/Score.js"></script>
 <script src="src/MiniMap.js"></script>
 <script src="src/Reticle.js"></script>
 <script src="src/ReticleUI.js"></script>
 <script src="src/Enemy.js"></script>
-
+<script src="http://192.168.128.28:1337/vorlon.js"></script>
 <script>
 
-var app = new App()
+var app = new Appx.App()
 
 // Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
 // Only enable it if you actually need to.
@@ -115,35 +116,8 @@ app.camera = camera
 //////////////////////////////////////////////////////////////////////////////////
 //		Comments
 //////////////////////////////////////////////////////////////////////////////////
-var listener = new THREE.AudioListener();
-camera.add( listener );
 
-var audioLoader = new THREE.AudioLoader();
-function toggleMute(){
-	// debugger
-	var isMuted = listener.getMasterVolume() === 0.0 ? true : false 
-	if( isMuted ){
-		listener.setMasterVolume(1.0)
-	}else{
-		listener.setMasterVolume(0.0)
-	}
-	
-	updateMuteButton()
-}
-function updateMuteButton(){
-	var isMuted = listener.getMasterVolume() === 0.0 ? true : false 
-	if( isMuted ){
-		document.querySelector('#unmuteButton').style.display = 'initial'				
-		document.querySelector('#muteButton').style.display = 'none'
-	}else{
-		document.querySelector('#unmuteButton').style.display = 'none'
-		document.querySelector('#muteButton').style.display = 'initial'		
-	}
-}
-
-listener.setMasterVolume(0.0)	// to start muted
-// listener.setMasterVolume(1.0)	// to start with sound on
-updateMuteButton()
+app.audio = new Appx.Audio(app)
 
 //////////////////////////////////////////////////////////////////////////////////
 //		Comments
@@ -225,12 +199,11 @@ document.querySelector('#resetButton').addEventListener('click', function() {
 });
 
 document.querySelector('#muteButton').addEventListener('click', function() {
-	toggleMute()
+	app.audio.toggleMute()
 });
 
-
 document.querySelector('#unmuteButton').addEventListener('click', function() {
-	toggleMute()
+	app.audio.toggleMute()
 });
 
 function enterFullscreen (element) {
@@ -328,7 +301,7 @@ function enterFullscreen (element) {
 //              Handle score
 //////////////////////////////////////////////////////////////////////////////
 ;(function(){
-	var score = new THREEx.Score(app);
+	var score = new Appx.Score(app);
 	scene.add(score.object3d)
 })()
 
@@ -337,8 +310,11 @@ function enterFullscreen (element) {
 //////////////////////////////////////////////////////////////////////////////
 
 ;(function(){
-	var miniMap = new THREEx.MiniMap(app)
+	var miniMap = new Appx.MiniMap(app)
 	scene.add(miniMap.object3d)
+	app.signals.update.add(function(){
+		miniMap.update()
+	})
 })()
 
 //////////////////////////////////////////////////////////////////////////////
@@ -346,8 +322,8 @@ function enterFullscreen (element) {
 //////////////////////////////////////////////////////////////////////////////
 
 ;(function(){
-	var reticle = new THREEx.Reticle()
-	var reticleUI = new THREEx.ReticleUI(reticle)
+	var reticle = new Appx.Reticle()
+	var reticleUI = new Appx.ReticleUI(reticle)
 	scene.add(reticleUI.object3d)
 
 	app.reticle = reticle;
@@ -372,18 +348,18 @@ app.enemies = []
 
 ;(function(){
 	new Promise(function(resolve){
-		THREEx.Enemy.loadAssets().then(resolve)
+		Appx.Enemy.loadAssets(app).then(resolve)
 	}).then(function(){	
 		for(var i = 0; i < 1; i++){
 		// for(var i = 0; i < 10; i++){
-			var enemy = new THREEx.Enemy(app)
+			var enemy = new Appx.Enemy(app)
 			scene.add(enemy.object3d)
 
 			app.enemies.push(enemy)
 			app.reticle.objects.push(enemy.object3d)
 		}
 		
-
+		// update every enemy
 		app.signals.update.add(function(){
 			app.enemies.forEach(function(enemy){
 				enemy.update()
