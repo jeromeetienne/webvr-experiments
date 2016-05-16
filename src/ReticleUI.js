@@ -16,7 +16,7 @@ Appx.ReticleUI = function(reticle){
 		depthTest: false
 	});
 	var sprite = new THREE.Sprite( material )
-	sprite.scale.multiplyScalar(0.5)
+	sprite.scale.multiplyScalar(0.3)
 	sprite.position.z = -2
 	this.object3d = sprite
 	
