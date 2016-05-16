@@ -12,7 +12,7 @@ Appx.ReticleUI = function(reticle){
 	var material = new THREE.SpriteMaterial( {
 		map: texture, 
 		color: 0xffffff, 
-		opacity: 0.2,
+		opacity: 0.4,
 		depthTest: false
 	});
 	var sprite = new THREE.Sprite( material )
@@ -37,10 +37,10 @@ Appx.ReticleUI = function(reticle){
 	})
 
 	reticle.signals.hoverStart.add(function(progress){
-		sprite.material.opacity = 0.6
+		sprite.material.opacity = 0.8
 	})
 	reticle.signals.hoverStop.add(function(progress){
 		sprite.material.rotation = 0
-		sprite.material.opacity = 0.2	
+		sprite.material.opacity = 0.5
 	})
 }
