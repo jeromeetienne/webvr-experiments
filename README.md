@@ -26,6 +26,7 @@ Thanks to @borismus and his fantastic work on
   - normal (0,0,1) is from camera.worldToLocal
   - coplanarPoint camera.worldToLocal(0,0,cameraToUiDistance)
 
+
 - pointerlock while on desktop - https://github.com/mrdoob/three.js/blob/master/examples/misc_controls_pointerlock.html
 - TODO what is the state automata for player/enemies/game
 - game state automata
@@ -37,6 +38,7 @@ Thanks to @borismus and his fantastic work on
 - ipad issues
   - cant go fullscreen
   - cant come back from stereo
+  - can change the orientation by touch
 
 ### Changelog
 - added toggle mute function
