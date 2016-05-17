@@ -92,7 +92,7 @@ canvas {
 		<div id="instructions">
 			<span style="font-size:40px">Click to play</span>
 			<br />
-			(W, A, S, D = Move, SPACE = Jump, MOUSE = Look around)
+			VR Game by <a href='https://twitter.com/jerome_etienne'>@jerome_etienne</a>
 		</div>
 	</div>
 
@@ -144,7 +144,9 @@ document.addEventListener('touchmove', function(event) {
 var app = new Appx.App()
 
 document.querySelector('#blocker').addEventListener('click', function(){
+
 	document.querySelector('#blocker').style.display = 'none'
+
 	app.gotoState('playing')
 })
 
