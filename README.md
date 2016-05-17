@@ -10,6 +10,7 @@ Thanks to @borismus and his fantastic work on
 
 
 ### TODO
+- make a start screen
 - remove font-awesome and put svg icon
   - https://github.com/encharm/Font-Awesome-SVG-PNG/tree/master/black/svg
 - make game.html playable
@@ -19,6 +20,8 @@ Thanks to @borismus and his fantastic work on
   - handle state via Promise
   - minimap
   - make score
+- make UI position/size in pixel instead
+  - why in pixel and not in normalized [-1,+1] ? because it is the same at the end, and it is easier to think about it as human
 
 - TODO what is the state automata for player/enemies/game
 - game state automata

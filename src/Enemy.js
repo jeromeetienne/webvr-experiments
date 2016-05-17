@@ -30,7 +30,7 @@ Appx.Enemy = (function(){
 		sound.setVolume(0.2);
 		sound.play()
 		
-		this.setInitialPosition = function(){
+		setInitialPosition = function(){
 			// restart the sound
 			sound.stop()
 			sound.isPlaying = false
@@ -56,15 +56,21 @@ Appx.Enemy = (function(){
 			mesh.position.add(velocity)
 			
 			if( mesh.position.length() < 1 ){
-				_this.setInitialPosition()
+				_setInitialPosition()
 			}
+		}
+		
+		
+		this.onReceivedShoot = function(){
+			setInitialPosition()
+			app.signals.enemyKilled.dispatch(_this)		
 		}
 
 		//////////////////////////////////////////////////////////////////////////////
 		//		Code Separator
 		//////////////////////////////////////////////////////////////////////////////
 
-		this.setInitialPosition()
+		setInitialPosition()
 	}
 })()
 
