@@ -9,93 +9,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css">
-<style>
-html, body {
-	width: 100%;
-	height: 100%;
-	background-color: #000;
-	color: #fff;
-	margin: 0px;
-	padding: 0;
-	overflow: hidden;
-}
-
-canvas {
-	position: fixed;
-	top: 0;
-}
-
-#buttons {
-	position: fixed;
-	bottom: 0;
-	right: 0;
-	z-index: 1;
-	/*to prevent mouse selection of the button*/
-	user-select: none;
-	-webkit-user-select: none;
-}
-#buttons i {
-	color: #ccc;
-	font-size: 150%;
-	margin-bottom: 0.4em;
-	margin-right: 0.4em;
-}
-#buttons i:hover {
-	color: #fff;
-	text-shadow: 0px 0px 5px lightblue, 0px 0px 10px lightblue;
-	cursor: pointer;
-}
-</style>
-<style>
-#blocker {
-	position: absolute;
-	z-index: 1;
-
-	width: 100%;
-	height: 100%;
-
-	background-color: rgba(255,255,255,0.5);
-}
-
-#instructions {
-	width: 100%;
-	height: 100%;
-
-	display: -webkit-box;
-	display: -moz-box;
-	display: box;
-
-	-webkit-box-orient: horizontal;
-	-moz-box-orient: horizontal;
-	box-orient: horizontal;
-
-	-webkit-box-pack: center;
-	-moz-box-pack: center;
-	box-pack: center;
-
-	-webkit-box-align: center;
-	-moz-box-align: center;
-	box-align: center;
-
-	color: #ffffff;
-	text-align: center;
-
-	cursor: pointer;
-}
-</style>
-
-
+<link rel="stylesheet" href="css/main.css">
 </head>
 
 <body>
-	<div id="blocker">
-		<div id="instructions">
-			<span style="font-size:40px">Click to play</span>
-			<br />
-			(W, A, S, D = Move, SPACE = Jump, MOUSE = Look around)
-		</div>
-	</div>
-
 	<div id="buttons">
 		<i class="fa fa-volume-off" id='muteButton' title='Mute Sound'></i>
 		<i class="fa fa-volume-up" id='unmuteButton' title='Unmute Sound'></i>
@@ -143,10 +60,23 @@ document.addEventListener('touchmove', function(event) {
 
 var app = new Appx.App()
 
-document.querySelector('#blocker').addEventListener('click', function(){
-	document.querySelector('#blocker').style.display = 'none'
+//////////////////////////////////////////////////////////////////////////////
+//              Code Separator
+//////////////////////////////////////////////////////////////////////////////
+app.signals.stateChange.add(function(newState, oldState){
+	if( newState !== 'playing' )	return
+	app.score.resetScore()
+})
+
+app.signals.stateChange.add(function(newState, oldState){
+	if( newState !== 'dying' )	return
 	app.gotoState('playing')
 })
+
+//////////////////////////////////////////////////////////////////////////////
+//              Code Separator
+//////////////////////////////////////////////////////////////////////////////
+
 
 // Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
 // Only enable it if you actually need to.
@@ -202,12 +132,10 @@ function animate(timestamp) {
 	var delta = Math.min(timestamp - lastRender, 500);
 	lastRender = timestamp;
 	
-	if( app.state === 'playing' ){
-		// Update VR headset position and apply to camera.
-		controls.update();
-		
-		app.signals.update.dispatch(delta)		
-	}
+	// Update VR headset position and apply to camera.
+	controls.update();
+	
+	app.signals.update.dispatch(delta)
 	
 	// Render the scene.
 	effect.render(scene, camera);
@@ -313,6 +241,7 @@ function enterFullscreen (element) {
 //////////////////////////////////////////////////////////////////////////////
 ;(function(){
 	var score = new Appx.Score(app);
+	app.score = score
 	scene.add(score.object3d)
 	app.signals.update.add(function(){
 		score.update()

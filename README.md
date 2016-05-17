@@ -10,9 +10,9 @@ Thanks to @borismus and his fantastic work on
 
 ### TODO
 - make a start screen
+- get a instruction screen
 - remove font-awesome and put svg icon
   - https://github.com/encharm/Font-Awesome-SVG-PNG/tree/master/black/svg
-- get a instruction screen
 - have a player death leading to a instruction screen
 
 

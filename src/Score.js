@@ -42,6 +42,11 @@ Appx.Score = function(app){
 		score += 1
 		updateDrawing()
 	})
+	
+	this.resetScore = function(){
+		score = 0;
+		updateDrawing()
+	}
 
 	this.update = function(){
 		app.camera.updateMatrixWorld();

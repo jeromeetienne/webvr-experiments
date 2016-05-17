@@ -45,10 +45,78 @@ canvas {
 	text-shadow: 0px 0px 5px lightblue, 0px 0px 10px lightblue;
 	cursor: pointer;
 }
+.splashScreen {
+	position: absolute;
+	z-index: 1;
+
+	width: 100%;
+	height: 100%;
+
+	background-color: rgba(255,255,255,0.5);
+        
+        display: none;
+        
+        font-family: monospace;
+        font-size: 20px;
+}
+
+.splashScreen .instructions {
+	width: 100%;
+	height: 100%;
+
+	display: -webkit-box;
+	display: -moz-box;
+	display: box;
+
+	-webkit-box-orient: horizontal;
+	-moz-box-orient: horizontal;
+	box-orient: horizontal;
+
+	-webkit-box-pack: center;
+	-moz-box-pack: center;
+	box-pack: center;
+
+	-webkit-box-align: center;
+	-moz-box-align: center;
+	box-align: center;
+
+	color: #ffffff;
+	text-align: center;
+
+	cursor: pointer;
+}
 </style>
+
 </head>
 
 <body>
+	<div id="startScreen" class='splashScreen'>
+		<div class="instructions">
+			<span style="font-size:300%;">
+				Click to Play
+			</span>
+			<br />
+			<span style="color: #ccc;">
+				Cube Monsters will come at you.
+				<br />
+				You need to destroy them before they touch you.
+				<br />
+				Be Good! :)
+			</span>
+		</div>
+	</div>
+	<div id="stopScreen" class='splashScreen'>
+		<div class="instructions">
+			<span style="font-size:300%;">
+				Game Over
+			</span>
+			<br />
+			<span style="color: #ccc;">
+				Press any thing to start again
+			</span>
+		</div>
+	</div>
+
 	<div id="buttons">
 		<i class="fa fa-volume-off" id='muteButton' title='Mute Sound'></i>
 		<i class="fa fa-volume-up" id='unmuteButton' title='Unmute Sound'></i>
@@ -95,6 +163,38 @@ document.addEventListener('touchmove', function(event) {
 <script>
 
 var app = new Appx.App()
+
+//////////////////////////////////////////////////////////////////////////////
+//              Code Separator
+//////////////////////////////////////////////////////////////////////////////
+
+
+document.querySelector('#startScreen').style.display = 'inherit'
+
+document.querySelector('#startScreen').addEventListener('click', function(){
+	app.gotoState('playing')
+})
+
+document.querySelector('#stopScreen').addEventListener('click', function(){
+	app.gotoState('playing')
+})
+
+app.signals.stateChange.add(function(newState, oldState){
+	if( newState !== 'playing' )	return
+	document.querySelector('#startScreen').style.display = 'none'	
+	document.querySelector('#stopScreen').style.display = 'none'	
+})
+
+app.signals.stateChange.add(function(newState, oldState){
+	if( newState !== 'dying' )	return
+	app.score.resetScore()
+	document.querySelector('#stopScreen').style.display = 'inherit'	
+})
+
+//////////////////////////////////////////////////////////////////////////////
+//              Code Separator
+//////////////////////////////////////////////////////////////////////////////
+
 
 // Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
 // Only enable it if you actually need to.
@@ -150,10 +250,12 @@ function animate(timestamp) {
 	var delta = Math.min(timestamp - lastRender, 500);
 	lastRender = timestamp;
 	
-	// Update VR headset position and apply to camera.
-	controls.update();
-	
-	app.signals.update.dispatch(delta)
+	if( app.state === 'playing' ){
+		// Update VR headset position and apply to camera.
+		controls.update();
+		
+		app.signals.update.dispatch(delta)		
+	}
 	
 	// Render the scene.
 	effect.render(scene, camera);
@@ -259,6 +361,7 @@ function enterFullscreen (element) {
 //////////////////////////////////////////////////////////////////////////////
 ;(function(){
 	var score = new Appx.Score(app);
+	app.score = score
 	scene.add(score.object3d)
 	app.signals.update.add(function(){
 		score.update()
