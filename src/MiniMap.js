@@ -12,7 +12,7 @@ Appx.MiniMap = function(app){
 	
 
 	var canvas = document.createElement( 'canvas' );
-	canvas.width = canvas.height = 128;
+	canvas.width = canvas.height = 64;
 	var texture = new THREE.CanvasTexture( canvas );
 	var context = canvas.getContext( '2d' );
 
@@ -70,6 +70,21 @@ Appx.MiniMap = function(app){
 	this.update = function(){
 		updateDrawing()
 		
+		var isStereo = vrDisplay.isPresenting === true ? true : false
+		var mouse = new THREE.Vector2()
+
+		// set mouse position in pixel - easier to set for a human
+		// mouse.set(32, 32)
+		// mouse.set(128,128)
+		// mouse.y = app.renderer.domElement.height - mouse.y
+		// mouse.x = mouse.x / app.renderer.domElement.width * 2 - 1
+		// mouse.y = mouse.y / app.renderer.domElement.height * 2 - 1
+
+		mouse.set(-0.9, 0.8)
+
+		// reposition UI if stereo
+		// TODO how come i have to handle that ? why not using camera paramerters
+		if( isStereo === true )	mouse.x = mouse.x / 2
 		
 		// compute the plane
 		var coplanarPoint = new THREE.Vector3(0,0,-5)
@@ -78,8 +93,6 @@ Appx.MiniMap = function(app){
 		plane.setFromNormalAndCoplanarPoint(normal, coplanarPoint)
 		plane.applyMatrix4(app.camera.matrixWorld)
 		// compute the ray
-		var isStereo = vrDisplay.isPresenting === true ? true : false
-		var mouse = new THREE.Vector2(-0.9/(isStereo ? 2 : 1),0.8)
 		var raycaster = new THREE.Raycaster()
 		raycaster.setFromCamera(mouse, app.camera)
 		// compute intersection

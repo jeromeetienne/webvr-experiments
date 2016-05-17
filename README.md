@@ -9,6 +9,7 @@ Thanks to @borismus and his fantastic work on
 - [boilerplate](http://jeromeetienne.github.io/webvr-experiment/boilerplate.html)
 
 ### TODO
+- make a start screen
 - remove font-awesome and put svg icon
   - https://github.com/encharm/Font-Awesome-SVG-PNG/tree/master/black/svg
 - get a instruction screen
@@ -26,6 +27,9 @@ Thanks to @borismus and his fantastic work on
   - zombies running into you
   - you squashing kittens with a horrible guns
   - something with kitten and heart
+
+- make UI position/size in pixel instead
+  - why in pixel and not in normalized [-1,+1] ? because it is the same at the end, and it is easier to think about it as human
 
 - TODO what is the state automata for player/enemies/game
   - game state automata

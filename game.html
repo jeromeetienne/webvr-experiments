@@ -101,6 +101,7 @@ var app = new Appx.App()
 // Only enable it if you actually need to.
 var renderer = new THREE.WebGLRenderer({antialias: false});
 renderer.setPixelRatio(Math.floor(window.devicePixelRatio));
+app.renderer = renderer
 
 // Append the canvas element created by the renderer to document body element.
 document.body.appendChild(renderer.domElement);
@@ -295,8 +296,7 @@ function enterFullscreen (element) {
 
 	reticle.signals.click.add(function(object3d){
 		var enemy = object3d.userData.enemy
-		enemy.setInitialPosition()
-		app.signals.enemyKilled.dispatch(enemy)		
+		enemy.onReceivedShoot()
 	})
 })()
 
