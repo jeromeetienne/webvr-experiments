@@ -8,10 +8,13 @@ Thanks to @borismus and his fantastic work on
 - [game](http://jeromeetienne.github.io/webvr-experiment/game.html)
 - [boilerplate](http://jeromeetienne.github.io/webvr-experiment/boilerplate.html)
 
-
 ### TODO
 - remove font-awesome and put svg icon
   - https://github.com/encharm/Font-Awesome-SVG-PNG/tree/master/black/svg
+- get a instruction screen
+- have a player death leading to a instruction screen
+
+
 - make game.html playable
   - aka able to shoot at enemy, die if enemy touch
   - thor hammer as enemy
@@ -19,9 +22,13 @@ Thanks to @borismus and his fantastic work on
   - handle state via Promise
   - minimap
   - make score
+- make it tell a story
+  - zombies running into you
+  - you squashing kittens with a horrible guns
+  - something with kitten and heart
 
 - TODO what is the state automata for player/enemies/game
-- game state automata
+  - game state automata
   - instruction screen -> wait for use to start
   - startGame (loading resource) -> gameStarted()
 - THREE.Reticle could be useful in three.js
