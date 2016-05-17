@@ -8,6 +8,7 @@ var Appx = Appx || {}
 Appx.ReticleUI = function(reticle){
 	var _this = this;
 	
+	
 	var texture = new THREE.TextureLoader().load( "images/sprite0.png" );
 	var material = new THREE.SpriteMaterial( {
 		map: texture, 
@@ -16,7 +17,7 @@ Appx.ReticleUI = function(reticle){
 		depthTest: false
 	});
 	var sprite = new THREE.Sprite( material )
-	sprite.scale.multiplyScalar(0.3)
+	sprite.scale.multiplyScalar(0.5)
 	sprite.position.z = -2
 	this.object3d = sprite
 	
