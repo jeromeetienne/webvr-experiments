@@ -46,9 +46,56 @@ canvas {
 	cursor: pointer;
 }
 </style>
+<style>
+#blocker {
+	position: absolute;
+	z-index: 1;
+
+	width: 100%;
+	height: 100%;
+
+	background-color: rgba(255,255,255,0.5);
+}
+
+#instructions {
+	width: 100%;
+	height: 100%;
+
+	display: -webkit-box;
+	display: -moz-box;
+	display: box;
+
+	-webkit-box-orient: horizontal;
+	-moz-box-orient: horizontal;
+	box-orient: horizontal;
+
+	-webkit-box-pack: center;
+	-moz-box-pack: center;
+	box-pack: center;
+
+	-webkit-box-align: center;
+	-moz-box-align: center;
+	box-align: center;
+
+	color: #ffffff;
+	text-align: center;
+
+	cursor: pointer;
+}
+</style>
+
+
 </head>
 
 <body>
+	<div id="blocker">
+		<div id="instructions">
+			<span style="font-size:40px">Click to play</span>
+			<br />
+			(W, A, S, D = Move, SPACE = Jump, MOUSE = Look around)
+		</div>
+	</div>
+
 	<div id="buttons">
 		<i class="fa fa-volume-off" id='muteButton' title='Mute Sound'></i>
 		<i class="fa fa-volume-up" id='unmuteButton' title='Unmute Sound'></i>

@@ -56,7 +56,7 @@ Appx.Enemy = (function(){
 			mesh.position.add(velocity)
 			
 			if( mesh.position.length() < 1 ){
-				_setInitialPosition()
+				setInitialPosition()
 			}
 		}
 		
