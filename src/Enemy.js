@@ -57,6 +57,7 @@ Appx.Enemy = (function(){
 			
 			if( mesh.position.length() < 1 ){
 				setInitialPosition()
+				app.gotoState('dying')
 			}
 		}
 		
