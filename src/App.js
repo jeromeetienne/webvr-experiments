@@ -15,6 +15,7 @@ Appx.App = function(){
 	
 	this.gotoState = function(newState){
 		var oldState = _this.state
+		console.log('app from', _this.state, 'to', newState)
 		if( newState === 'playing' ){
 			console.assert(oldState === 'dying')
 			_this.state = newState

@@ -30,16 +30,18 @@ Appx.Enemy = (function(){
 		sound.setVolume(0.2);
 		sound.play()
 		
-		setInitialPosition = function(){
+		this.setInitialPosition = function(){
 			// restart the sound
 			sound.stop()
 			sound.isPlaying = false
 			sound.play()
 			
-			// direction = THREE.Math.randFloat(0, Math.PI*2)
-			// distance = 8 + THREE.Math.randFloatSpread(4)
-			direction = 3*Math.PI/2
-			distance = 10
+			direction = THREE.Math.randFloat(0, Math.PI*2)
+			distance = 8 + THREE.Math.randFloatSpread(4)
+			// if( location.hostname === '127.0.0.1' ){
+			// 	direction = 3*Math.PI/2
+			// 	distance = 10				
+			// }
 			mesh.position.x = distance * Math.cos(direction) 
 			mesh.position.z = distance * Math.sin(direction)
 			mesh.lookAt(scene.position)
@@ -56,14 +58,14 @@ Appx.Enemy = (function(){
 			mesh.position.add(velocity)
 			
 			if( mesh.position.length() < 1 ){
-				setInitialPosition()
+				this.setInitialPosition()
 				app.gotoState('dying')
 			}
 		}
 		
 		
 		this.onClick = function(){
-			setInitialPosition()
+			this.setInitialPosition()
 			app.signals.enemyKilled.dispatch(_this)		
 		}
 
@@ -71,7 +73,7 @@ Appx.Enemy = (function(){
 		//		Code Separator
 		//////////////////////////////////////////////////////////////////////////////
 
-		setInitialPosition()
+		this.setInitialPosition()
 	}
 })()
 

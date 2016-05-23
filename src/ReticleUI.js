@@ -17,7 +17,7 @@ Appx.ReticleUI = function(reticle){
 		depthTest: false
 	});
 	var sprite = new THREE.Sprite( material )
-	sprite.scale.multiplyScalar(0.5)
+	sprite.scale.set(1,1).multiplyScalar(0.2)
 	sprite.position.z = -2
 	this.object3d = sprite
 	
@@ -39,9 +39,11 @@ Appx.ReticleUI = function(reticle){
 
 	reticle.signals.hoverStart.add(function(progress){
 		sprite.material.opacity = 0.8
+		sprite.scale.set(1,1).multiplyScalar(0.5)
 	})
 	reticle.signals.hoverStop.add(function(progress){
 		sprite.material.rotation = 0
 		sprite.material.opacity = 0.5
+		sprite.scale.set(1,1).multiplyScalar(0.2)
 	})
 }

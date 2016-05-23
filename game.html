@@ -66,11 +66,16 @@ var app = new Appx.App()
 //////////////////////////////////////////////////////////////////////////////
 app.signals.stateChange.add(function(newState, oldState){
 	if( newState !== 'playing' )	return
-	app.score.resetScore()
+	app.enemies.forEach(function(enemies){
+		enemies.setInitialPosition()
+	})
 })
+
+
 
 app.signals.stateChange.add(function(newState, oldState){
 	if( newState !== 'dying' )	return
+	app.score.resetScore()
 	app.gotoState('playing')
 })
 
@@ -293,9 +298,10 @@ app.enemies = []
 ;(function(){
 	new Promise(function(resolve){
 		Appx.Enemy.loadAssets(app).then(resolve)
-	}).then(function(){	
-		for(var i = 0; i < 1; i++){
-		// for(var i = 0; i < 10; i++){
+	}).then(function(){
+		var nEnemies = 10
+		if( location.hostname === '127.0.0.1' )	nEnemies = 1
+		for(var i = 0; i < nEnemies; i++){
 			var enemy = new Appx.Enemy(app)
 			scene.add(enemy.object3d)
 
