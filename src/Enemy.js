@@ -62,7 +62,7 @@ Appx.Enemy = (function(){
 		}
 		
 		
-		this.onReceivedShoot = function(){
+		this.onClick = function(){
 			setInitialPosition()
 			app.signals.enemyKilled.dispatch(_this)		
 		}

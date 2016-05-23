@@ -280,7 +280,7 @@ function enterFullscreen (element) {
 
 	reticle.signals.click.add(function(object3d){
 		var enemy = object3d.userData.enemy
-		enemy.onReceivedShoot()
+		enemy.onClick()
 	})
 })()
 
