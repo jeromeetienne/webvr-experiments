@@ -9,7 +9,7 @@ Appx.ReticleUI = function(reticle){
 	var _this = this;
 	
 	
-	var texture = new THREE.TextureLoader().load( "images/sprite0.png" );
+	var texture = new THREE.TextureLoader().load( "../images/sprite0.png" );
 	var material = new THREE.SpriteMaterial( {
 		map: texture, 
 		color: 0xffffff, 
