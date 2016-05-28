@@ -8,9 +8,15 @@ Thanks to @borismus and his fantastic work on
 - [game](http://jeromeetienne.github.io/webvr-experiment/game.html)
 - [boilerplate](http://jeromeetienne.github.io/webvr-experiment/boilerplate.html)
 
+### Reticle
+- TODO THREEx.Reticle.signals.nearingStart/nearingStop signals
+  - signals triggered when the reticle is near a potential target
+  - Reticle UI is using it to make the reticle smaller when it isnt near a target
+- make the reticle close to the target - thus no focus trouble
+
 ### TODO
-- make a start screen
-- get a instruction screen
+
+- make a start screen - get a instruction screen
 - remove font-awesome and put svg icon
   - https://github.com/encharm/Font-Awesome-SVG-PNG/tree/master/black/svg
 - have a player death leading to a instruction screen
