@@ -278,7 +278,10 @@ function enterFullscreen (element) {
 	app.reticle = reticle;
 	
 	app.signals.update.add(function(){
-		reticle.update(camera)
+		var objects = app.enemies.map(function(enemy){
+			return enemy.object3d
+		})
+		reticle.update(objects, camera)
 		reticleUI.update(camera)
 	})
 
@@ -305,7 +308,6 @@ app.enemies = []
 			scene.add(enemy.object3d)
 
 			app.enemies.push(enemy)
-			app.reticle.objects.push(enemy.object3d)
 		}
 		
 		// update every enemy

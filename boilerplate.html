@@ -129,13 +129,13 @@ function animate(timestamp) {
 	var delta = Math.min(timestamp - lastRender, 500);
 	lastRender = timestamp;
 	
-	// Apply rotation to cube mesh
+	// Update VR headset position and apply to camera.
+	controls.update();
+
+	// call each function for the rendering
 	onRenderFcts.forEach(function(onRenderFct){
 		onRenderFct(delta)
 	})
-	
-	// Update VR headset position and apply to camera.
-	controls.update();
 	
 	// Render the scene.
 	effect.render(scene, camera);
@@ -167,7 +167,7 @@ window.addEventListener('vrdisplaypresentchange', function onVRDisplayPresentCha
 
 // Button click handlers.
 document.querySelector('#fullscreenButton').addEventListener('click', function() {
-	var domElement = document.querySelector('#container')
+	var domElement = document.querySelector('#fullScreenContainer')
 	enterFullscreen(domElement);
 });
 document.querySelector('#vrButton').addEventListener('click', function() {

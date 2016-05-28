@@ -2,7 +2,7 @@
 
 <html lang='en'>
 <head>
-<title>Web VR Boilerplate</title>
+<title>Web VR Video 360</title>
 <meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no'>
 <meta name='mobile-web-app-capable' content='yes'>
@@ -167,7 +167,7 @@ window.addEventListener('vrdisplaypresentchange', function onVRDisplayPresentCha
 
 // Button click handlers.
 document.querySelector('#fullscreenButton').addEventListener('click', function() {
-	var domElement = document.querySelector('#container')
+	var domElement = document.querySelector('#fullScreenContainer')
 	enterFullscreen(domElement);
 });
 document.querySelector('#vrButton').addEventListener('click', function() {

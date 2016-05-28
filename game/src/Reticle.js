@@ -15,7 +15,6 @@ Appx.Reticle = function(){
 	}
 	
 	this.hoverDuration = 0.5;
-	this.objects = []	// TODO put that in this.update() argumentså
 	var hoverStartedAt = null
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -23,12 +22,11 @@ Appx.Reticle = function(){
 	//////////////////////////////////////////////////////////////////////////////
 	var mouse = new THREE.Vector2(0,0)
 	var raycaster = new THREE.Raycaster();
-	this.update = function(camera){
+	this.update = function(objects, camera){
 		raycaster.setFromCamera( mouse, camera );
 
-		var intersects = raycaster.intersectObjects( _this.objects );
+		var intersects = raycaster.intersectObjects( objects );
 		var intersecting = intersects.length > 0 ? true : false
-
 
 		// start hovering if needed
 		if( intersecting === true ){
