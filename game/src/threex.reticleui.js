@@ -62,11 +62,13 @@ THREEx.ReticleUI = function(reticle){
 	})
 	
 	reticle.signals.nearingStart.add(function(object3d){
+		console.log('nearingStart', object3d.name)
 		tweenOpacity = 0.5
 		tweenPosition.z = -(object3d.position.length() - object3d.geometry.boundingSphere.radius - 0.1)	
 	})
 	
 	reticle.signals.nearingStop.add(function(){
+		console.log('nearingStop')
 		tweenOpacity = 0.2
 		tweenPosition.z = -2
 	})

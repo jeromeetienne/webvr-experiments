@@ -271,6 +271,20 @@ onRenderFcts.push(function(delta){
 	reticle.signals.click.add(function(object3d){
 		console.log('click on', object3d.name)
 	})
+	
+	var nearingObject = null
+	var nearingMaterial = new THREE.MeshBasicMaterial( { color: 0x20cc80, wireframe: true, wireframeLinewidth: 3 } )
+	reticle.signals.nearingStart.add(function(object3d){
+		console.assert(nearingObject === null)
+		nearingObject = new THREE.Mesh(object3d.geometry, nearingMaterial);
+		object3d.add(nearingObject)
+	})
+
+	reticle.signals.nearingStop.add(function(){
+		console.assert(nearingObject !== null)
+		nearingObject.parent.remove(nearingObject)
+		nearingObject = null;
+	})
 })()
 
 

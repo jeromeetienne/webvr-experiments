@@ -9,6 +9,7 @@ THREEx.Reticle = function(){
 	
 	this.signals = {
 		click : new Signals.Signal(),
+
 		hoverStart : new Signals.Signal(),
 		hoverProgress : new Signals.Signal(),
 		hoverStop : new Signals.Signal(),
@@ -16,10 +17,15 @@ THREEx.Reticle = function(){
 		nearingStart : new Signals.Signal(),
 		nearingStop : new Signals.Signal(),
 	}
-	this.near = 0.2
+
+	// parameters and states for hover
 	this.hoverDuration = 2;
 	var hoverStartedAt = null
 	var hoveringObject = null
+
+	// parameters and states for nearing
+	this.nearDistance = 0.2
+	var nearingObject = null
 	var isNearing = false
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -30,25 +36,27 @@ THREEx.Reticle = function(){
 	this.update = function(objects, camera){
 		raycaster.setFromCamera( mouse, camera );
 		
-		var intersects = raycaster.intersectObjects( objects );
-		var intersectedObject = intersects.length > 0 ? intersects[0].object : null
-		var intersecting = intersects.length > 0 ? true : false
+		manageHoveringAndClick()
+		manageNearing()
+		return
 
-		var wasHovering = hoverStartedAt !== null ? true : false
-		if( wasHovering )	console.assert( hoveringObject !== null )
-		if( wasHovering )	console.assert( hoverStartedAt !== null )
 
-		handleHovering()
-		handleClick()
+		function manageHoveringAndClick(){
+			var intersects = raycaster.intersectObjects( objects );
+			var intersectedObject = intersects.length > 0 ? intersects[0].object : null
+			var intersecting = intersects.length > 0 ? true : false
 
-		function handleHovering(){
+			var wasHovering = hoverStartedAt !== null ? true : false
+			if( wasHovering )	console.assert( hoveringObject !== null )
+			if( wasHovering )	console.assert( hoverStartedAt !== null )
+
 			// if was hovering, but not on the current intersectedObject. 
 			// aka we switch from hovering on a object, directly to hovering on another object
 			if( intersecting && wasHovering && hoveringObject !== intersectedObject ){
 				// stop hovering on hoveringObject
 				_this.signals.hoverProgress.dispatch(hoveringObject, 1.0)
 				_this.signals.hoverStop.dispatch()
-				wasHovering = false
+				wasHovering = false	// to fall thru to 'start hovering on intersectedObject'
 			}
 
 			// if we are intersecting, and we were not hovering before
@@ -67,18 +75,20 @@ THREEx.Reticle = function(){
 				_this.signals.hoverProgress.dispatch(hoveringObject, 1.0)
 				_this.signals.hoverStop.dispatch()
 			}			
-		}
-		function handleClick(){
-			// if we arent hovering, we can't be in click
+
+			// if we arent hovering, we dont need to go further
 			if( hoverStartedAt === null )	return
 			
 			// compute how long we are hovering
 			var hoveringAge = Date.now()/1000 - hoverStartedAt;
-			// dispatch hoverProgress if 
+			// dispatch hoverProgress if hoverDuration isnt over
 			if( hoveringAge < _this.hoverDuration ){
 				_this.signals.hoverProgress.dispatch( intersectedObject, hoveringAge / _this.hoverDuration )				
 				return
 			}
+			
+			// now we are in a click
+			
 			// stop hovering
 			hoveringObject = null
 			hoverStartedAt = null
@@ -92,21 +102,45 @@ THREEx.Reticle = function(){
 		//		honor nearing signals
 		//		FIXME it should only notify the closest
 		//////////////////////////////////////////////////////////////////////////////
-		objects.forEach(function(object){
-			if( object.geometry === undefined )		return
-			if( object.geometry.boundingSphere === null )	return
-			
-			var objectRadius = object.geometry.boundingSphere.radius
-			var distance = raycaster.ray.distanceToPoint(object.position)
+		function manageNearing(){
+			// find currentNearingObject
+			var currentNearingObject = null
+			var minDistance = Infinity;
+			for(var i = 0; i < objects.length; i++){
+				var object = objects[i]
+				if( object.geometry === undefined )		continue
+				if( object.geometry.boundingSphere === null )	continue
+				
+				var objectRadius = object.geometry.boundingSphere.radius
+				var distance = raycaster.ray.distanceToPoint(object.position)
 
-			var wasNearing = isNearing
-			if( distance < objectRadius + _this.near ){
-				isNearing = true
-				if( wasNearing === false )	_this.signals.nearingStart.dispatch(object)
-			}else{
-				isNearing = false
-				if( wasNearing === true )	_this.signals.nearingStop.dispatch()
+				if( distance > objectRadius + _this.nearDistance )	continue
+				
+				if( distance > minDistance )	continue
+				
+				currentNearingObject = object
+				minDistance = distance
 			}
-		})
+			
+			var wasNearing = isNearing
+			
+			if( wasNearing && currentNearingObject && currentNearingObject !== nearingObject ){
+				nearingObject = currentNearingObject
+				_this.signals.nearingStop.dispatch()
+				_this.signals.nearingStart.dispatch(currentNearingObject)				
+			}
+			
+			if( wasNearing === false && currentNearingObject ){
+				nearingObject = currentNearingObject
+				_this.signals.nearingStart.dispatch(currentNearingObject)
+				isNearing = true
+			}
+
+			if( wasNearing && currentNearingObject === null ){
+				nearingObject = null
+				_this.signals.nearingStop.dispatch()
+				isNearing = false
+			}
+		}
 	}
 }
