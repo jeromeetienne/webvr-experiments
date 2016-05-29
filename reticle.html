@@ -87,8 +87,8 @@ document.addEventListener('touchmove', function(event) {
 <script src="vendor/three.js/editor/js/libs/signals.min.js"></script>
 <script>window.Signals = window.signals; delete window.signals</script>
 
-<script src="game/src/Reticle.js"></script>
-<script src="game/src/ReticleUI.js"></script>
+<script src="game/src/threex.reticle.js"></script>
+<script src="game/src/threex.reticleui.js"></script>
 
 <script>
 var onRenderFcts = []
@@ -157,7 +157,7 @@ requestAnimationFrame(animate);
 //////////////////////////////////////////////////////////////////////////////////
 
 function onResize() {
-	console.log('Resizing to %s x %s.', window.innerWidth, window.innerHeight);
+	// console.log('Resizing to %s x %s.', window.innerWidth, window.innerHeight);
 	effect.setSize(window.innerWidth, window.innerHeight);
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
@@ -220,26 +220,38 @@ loader.load('../images/box.png', function onTextureLoaded(texture) {
 
 var clickableObjects = []
 
-// // Create 3D objects.
-// var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-// var material = new THREE.MeshNormalMaterial();
-// var cube = new THREE.Mesh(geometry, material);
-// cube.position.z = -4
-// clickableObjects.push(cube)
-// scene.add(cube);
+// Create 3D objects.
+var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+// var geometry = new THREE.TorusBufferGeometry( 0.5, 0.1, 16, 100 );
+var material = new THREE.MeshNormalMaterial();
+var mesh = new THREE.Mesh(geometry, material);
+mesh.position.x = -1
+mesh.position.z = -2
+mesh.name = 'backMesh'
+clickableObjects.push(mesh)
+scene.add(mesh);
 
 var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+// var geometry = new THREE.Geometry(0.5, 0.5, 0.5);
+// var geometry = new THREE.TorusKnotBufferGeometry( 0.5, 0.15, 100, 16 );
+// var geometry = new THREE.SphereBufferGeometry( 0.5, 32, 32 );
+// var geometry = new THREE.TorusBufferGeometry( 0.5, 0.1, 16, 100 );
 var material = new THREE.MeshNormalMaterial();
-var cube = new THREE.Mesh(geometry, material);
-cube.position.x = -1
-cube.position.z = -1
-clickableObjects.push(cube)
-scene.add(cube);
+var mesh = new THREE.Mesh(geometry, material);
+mesh.position.x = -1
+mesh.position.z = -1
+mesh.name = 'frontMesh'
+clickableObjects.push(mesh)
+scene.add(mesh);
 
+var light = new THREE.HemisphereLight();
+light.color.setHSL( 0.6, 1, 0.6 );
+light.groundColor.setHSL( 0.095, 1, 0.75 );
+scene.add(light)
 
 // Position cube mesh
 onRenderFcts.push(function(delta){
-	cube.rotation.y += delta * 0.0006;
+	mesh.rotation.y += delta * 0.0006;
 })
 
 //////////////////////////////////////////////////////////////////////////////
@@ -247,11 +259,8 @@ onRenderFcts.push(function(delta){
 //////////////////////////////////////////////////////////////////////////////
 
 ;(function(){
-	var reticle = new Appx.Reticle()
-
-	var objects = [cube]
-	
-	var reticleUI = new Appx.ReticleUI(reticle)
+	var reticle = new THREEx.Reticle()
+	var reticleUI = new THREEx.ReticleUI(reticle)
 	scene.add(reticleUI.object3d)
 
 	onRenderFcts.push(function(){
@@ -260,7 +269,7 @@ onRenderFcts.push(function(delta){
 	})
 
 	reticle.signals.click.add(function(object3d){
-		console.log('click', object3d)
+		console.log('click on', object3d.name)
 	})
 })()
 
