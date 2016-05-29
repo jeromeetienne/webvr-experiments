@@ -30,7 +30,7 @@ THREEx.ReticleUI = function(reticle){
 		// compute current position with tweening
 		currentPosition.multiplyScalar(0.85).add(tweenPosition.clone().multiplyScalar(0.15))
 
-		// constant size nomatter the distance from the camera
+		// constant size nomatter the distance from the camera - to avoid focus issue
 		var scale = currentPosition.length() * Math.sin(THREE.Math.degToRad(camera.fov/2))
 		sprite.scale.set(1,1).multiplyScalar(0.5 * scale)
 
@@ -44,7 +44,7 @@ THREEx.ReticleUI = function(reticle){
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////
-	//              Code Separator
+	//              Handle reticle signals
 	//////////////////////////////////////////////////////////////////////////////
 	
 	reticle.signals.hoverProgress.add(function(object3d, progress){
@@ -62,13 +62,11 @@ THREEx.ReticleUI = function(reticle){
 	})
 	
 	reticle.signals.nearingStart.add(function(object3d){
-		console.log('nearingStart', object3d.name)
 		tweenOpacity = 0.5
 		tweenPosition.z = -(object3d.position.length() - object3d.geometry.boundingSphere.radius - 0.1)	
 	})
 	
 	reticle.signals.nearingStop.add(function(){
-		console.log('nearingStop')
 		tweenOpacity = 0.2
 		tweenPosition.z = -2
 	})

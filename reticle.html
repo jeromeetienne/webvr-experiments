@@ -195,6 +195,19 @@ function enterFullscreen (element) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
+//		init reticles
+//////////////////////////////////////////////////////////////////////////////
+
+var reticle = new THREEx.Reticle()
+var reticleUI = new THREEx.ReticleUI(reticle)
+scene.add(reticleUI.object3d)
+
+onRenderFcts.push(function(){
+	reticle.update(clickableObjects, camera)
+	reticleUI.update(camera)
+})
+
+//////////////////////////////////////////////////////////////////////////////
 //		Code Separator
 //////////////////////////////////////////////////////////////////////////////
 
@@ -221,71 +234,72 @@ loader.load('../images/box.png', function onTextureLoaded(texture) {
 var clickableObjects = []
 
 // Create 3D objects.
-var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-// var geometry = new THREE.TorusBufferGeometry( 0.5, 0.1, 16, 100 );
-var material = new THREE.MeshNormalMaterial();
+var geometry = new THREE.PlaneGeometry(0.5, 0.5);
+var material = new THREE.MeshBasicMaterial({
+	map : new THREE.TextureLoader().load( 'images/cute-kitten-quotes-Favim.com-1887494.jpg' )
+});
 var mesh = new THREE.Mesh(geometry, material);
-mesh.position.x = -1
-mesh.position.z = -2
-mesh.name = 'backMesh'
+mesh.position.x = 0
+mesh.position.z = -1
+mesh.name = 'plane1'
 clickableObjects.push(mesh)
 scene.add(mesh);
 
-var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-// var geometry = new THREE.Geometry(0.5, 0.5, 0.5);
-// var geometry = new THREE.TorusKnotBufferGeometry( 0.5, 0.15, 100, 16 );
-// var geometry = new THREE.SphereBufferGeometry( 0.5, 32, 32 );
-// var geometry = new THREE.TorusBufferGeometry( 0.5, 0.1, 16, 100 );
-var material = new THREE.MeshNormalMaterial();
+// Create 3D objects.
+var geometry = new THREE.PlaneGeometry(0.5, 0.5);
+var material = new THREE.MeshBasicMaterial({
+	map : new THREE.TextureLoader().load( 'images/you_eated_my_cookie.jpg' )
+});
 var mesh = new THREE.Mesh(geometry, material);
-mesh.position.x = -1
+mesh.position.x = 0.6
 mesh.position.z = -1
-mesh.name = 'frontMesh'
+mesh.name = 'plane2'
+mesh.lookAt(camera.position)
 clickableObjects.push(mesh)
 scene.add(mesh);
+
+// Create 3D objects.
+var geometry = new THREE.PlaneGeometry(0.5, 0.5);
+var material = new THREE.MeshBasicMaterial({
+	map : new THREE.TextureLoader().load( 'images/you_eated_my_cookie.jpg' )
+});
+var mesh = new THREE.Mesh(geometry, material);
+mesh.position.x = -0.6
+mesh.position.z = -1
+mesh.name = 'plane2'
+mesh.lookAt(camera.position)
+clickableObjects.push(mesh)
+scene.add(mesh);
+
 
 var light = new THREE.HemisphereLight();
 light.color.setHSL( 0.6, 1, 0.6 );
 light.groundColor.setHSL( 0.095, 1, 0.75 );
 scene.add(light)
 
-// Position cube mesh
-onRenderFcts.push(function(delta){
-	mesh.rotation.y += delta * 0.0006;
-})
-
 //////////////////////////////////////////////////////////////////////////////
 //              Handle reticles
 //////////////////////////////////////////////////////////////////////////////
 
-;(function(){
-	var reticle = new THREEx.Reticle()
-	var reticleUI = new THREEx.ReticleUI(reticle)
-	scene.add(reticleUI.object3d)
-
-	onRenderFcts.push(function(){
-		reticle.update(clickableObjects, camera)
-		reticleUI.update(camera)
-	})
-
-	reticle.signals.click.add(function(object3d){
-		console.log('click on', object3d.name)
-	})
+reticle.signals.click.add(function(object3d){
+	console.log('click on', object3d.name)
+})
 	
-	var nearingObject = null
-	var nearingMaterial = new THREE.MeshBasicMaterial( { color: 0x20cc80, wireframe: true, wireframeLinewidth: 3 } )
-	reticle.signals.nearingStart.add(function(object3d){
-		console.assert(nearingObject === null)
-		nearingObject = new THREE.Mesh(object3d.geometry, nearingMaterial);
-		object3d.add(nearingObject)
-	})
+var nearingObject = null
+// var nearingMaterial = new THREE.MeshBasicMaterial( { color: 0x20cc80, wireframe: true, wireframeLinewidth: 3 } )
+reticle.signals.nearingStart.add(function(object3d){
+	console.assert(nearingObject === null)
+	nearingObject = object3d
+	// nearingObject = new THREE.Mesh(object3d.geometry, nearingMaterial);
+	// object3d.add(nearingObject)
+	nearingObject.scale.multiplyScalar(1.2)
+})
 
-	reticle.signals.nearingStop.add(function(){
-		console.assert(nearingObject !== null)
-		nearingObject.parent.remove(nearingObject)
-		nearingObject = null;
-	})
-})()
+reticle.signals.nearingStop.add(function(){
+	console.assert(nearingObject !== null)
+	nearingObject.scale.multiplyScalar(1/1.2)
+	nearingObject = null
+})
 
 
 </script></html>
