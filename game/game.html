@@ -8,7 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="../vendor/font-awesome/css/font-awesome.min.css">
 <link rel="stylesheet" href="css/main.css">
 </head>
 
@@ -35,28 +35,29 @@ document.addEventListener('touchmove', function(event) {
 </script>
 
 <!-- three.js library -->
-<script src="vendor/three.js/build/three.js"></script>
+<script src="../vendor/three.js/build/three.js"></script>
 
 <!-- VRControls.js applies the WebVR transformations to a three.js camera object. -->
-<script src="vendor/three.js/examples/js/controls/VRControls.js"></script>
+<script src="../vendor/three.js/examples/js/controls/VRControls.js"></script>
 
 <!-- VREffect.js handles stereo camera setup and rendering.  -->
-<script src="vendor/three.js/examples/js/effects/VREffect.js"></script>
+<script src="../vendor/three.js/examples/js/effects/VREffect.js"></script>
 
 <!-- A polyfill for the WebVR API.  -->
-<script src="vendor/webvr-polyfill.js"></script>
+<script src="../vendor/webvr-polyfill.js"></script>
 
 <!-- A polyfill for the WebVR API.  -->
-<script src="vendor/three.js/editor/js/libs/signals.min.js"></script>
+<script src="../vendor/three.js/editor/js/libs/signals.min.js"></script>
 <script>window.Signals = window.signals; delete window.signals</script>
 
 <script src="src/App.js"></script>
 <script src="src/Audio.js"></script>
 <script src="src/Score.js"></script>
 <script src="src/MiniMap.js"></script>
-<script src="src/Reticle.js"></script>
-<script src="src/ReticleUI.js"></script>
 <script src="src/Enemy.js"></script>
+
+<script src="src/threex.reticle.js"></script>
+<script src="src/threex.reticleui.js"></script>
 <script>
 
 var app = new Appx.App()
@@ -70,7 +71,6 @@ app.signals.stateChange.add(function(newState, oldState){
 		enemies.setInitialPosition()
 	})
 })
-
 
 
 app.signals.stateChange.add(function(newState, oldState){
@@ -214,7 +214,7 @@ function enterFullscreen (element) {
 
 	var geometry = new THREE.BoxGeometry(boxWidth, boxWidth, boxWidth);
 	var material = new THREE.MeshBasicMaterial({
-		map: new THREE.TextureLoader().load('images/box.png', function onLoad(texture){
+		map: new THREE.TextureLoader().load('../images/box.png', function onLoad(texture){
 			texture.wrapS = THREE.RepeatWrapping;
 			texture.wrapT = THREE.RepeatWrapping;
 			texture.repeat.set(boxWidth, boxWidth);
@@ -227,7 +227,7 @@ function enterFullscreen (element) {
 
 	var geometry = new THREE.PlaneGeometry(boxWidth, boxWidth);
 	var material = new THREE.MeshBasicMaterial({
-		map: new THREE.TextureLoader().load('images/box.png', function onLoad(texture){
+		map: new THREE.TextureLoader().load('../images/box.png', function onLoad(texture){
 			texture.wrapS = THREE.RepeatWrapping;
 			texture.wrapT = THREE.RepeatWrapping;
 			texture.repeat.set(boxWidth, boxWidth);
@@ -272,14 +272,17 @@ function enterFullscreen (element) {
 //////////////////////////////////////////////////////////////////////////////
 
 ;(function(){
-	var reticle = new Appx.Reticle()
-	var reticleUI = new Appx.ReticleUI(reticle)
+	var reticle = new THREEx.Reticle()
+	var reticleUI = new THREEx.ReticleUI(reticle)
 	scene.add(reticleUI.object3d)
 
 	app.reticle = reticle;
 	
 	app.signals.update.add(function(){
-		reticle.update(camera)
+		var objects = app.enemies.map(function(enemy){
+			return enemy.object3d
+		})
+		reticle.update(objects, camera)
 		reticleUI.update(camera)
 	})
 
@@ -306,7 +309,6 @@ app.enemies = []
 			scene.add(enemy.object3d)
 
 			app.enemies.push(enemy)
-			app.reticle.objects.push(enemy.object3d)
 		}
 		
 		// update every enemy

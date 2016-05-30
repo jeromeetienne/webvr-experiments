@@ -2,7 +2,7 @@
 
 <html lang='en'>
 <head>
-<title>Web VR Boilerplate</title>
+<title>Web VR Reticle Example</title>
 <meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no'>
 <meta name='mobile-web-app-capable' content='yes'>
@@ -84,6 +84,11 @@ document.addEventListener('touchmove', function(event) {
 <!-- A polyfill for the WebVR API.  -->
 <script src='vendor/webvr-polyfill.js'></script>
 
+<script src="vendor/three.js/editor/js/libs/signals.min.js"></script>
+<script>window.Signals = window.signals; delete window.signals</script>
+
+<script src="game/src/threex.reticle.js"></script>
+<script src="game/src/threex.reticleui.js"></script>
 
 <script>
 var onRenderFcts = []
@@ -131,7 +136,7 @@ function animate(timestamp) {
 	
 	// Update VR headset position and apply to camera.
 	controls.update();
-
+	
 	// call each function for the rendering
 	onRenderFcts.forEach(function(onRenderFct){
 		onRenderFct(delta)
@@ -152,7 +157,7 @@ requestAnimationFrame(animate);
 //////////////////////////////////////////////////////////////////////////////////
 
 function onResize() {
-	console.log('Resizing to %s x %s.', window.innerWidth, window.innerHeight);
+	// console.log('Resizing to %s x %s.', window.innerWidth, window.innerHeight);
 	effect.setSize(window.innerWidth, window.innerHeight);
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
@@ -190,11 +195,24 @@ function enterFullscreen (element) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
+//		init reticles
+//////////////////////////////////////////////////////////////////////////////
+
+var reticle = new THREEx.Reticle()
+var reticleUI = new THREEx.ReticleUI(reticle)
+scene.add(reticleUI.object3d)
+
+onRenderFcts.push(function(){
+	reticle.update(clickableObjects, camera)
+	reticleUI.update(camera)
+})
+
+//////////////////////////////////////////////////////////////////////////////
 //		Code Separator
 //////////////////////////////////////////////////////////////////////////////
 
 // Add a repeating grid as a skybox.
-var boxWidth = 5;
+var boxWidth = 10;
 var loader = new THREE.TextureLoader();
 loader.load('../images/box.png', function onTextureLoaded(texture) {
 	texture.wrapS = THREE.RepeatWrapping;
@@ -212,18 +230,73 @@ loader.load('../images/box.png', function onTextureLoaded(texture) {
 	scene.add(skybox);
 });
 
+
+var clickableObjects = []
+
 // Create 3D objects.
-var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-var material = new THREE.MeshNormalMaterial();
-var cube = new THREE.Mesh(geometry, material);
-cube.position.z = -1
+var geometry = new THREE.PlaneGeometry(0.5, 0.5);
+var material = new THREE.MeshBasicMaterial({
+	map : new THREE.TextureLoader().load( 'images/cute-kitten-quotes-Favim.com-1887494.jpg' )
+});
+var mesh = new THREE.Mesh(geometry, material);
+mesh.position.x = 0
+mesh.position.z = -1
+mesh.name = 'plane1'
+clickableObjects.push(mesh)
+scene.add(mesh);
 
-// Add cube mesh to your three.js scene
-scene.add(cube);
+// Create 3D objects.
+var geometry = new THREE.PlaneGeometry(0.5, 0.5);
+var material = new THREE.MeshBasicMaterial({
+	map : new THREE.TextureLoader().load( 'images/you_eated_my_cookie.jpg' )
+});
+var mesh = new THREE.Mesh(geometry, material);
+mesh.position.x = 0.6
+mesh.position.z = -1
+mesh.name = 'plane2'
+mesh.lookAt(camera.position)
+clickableObjects.push(mesh)
+scene.add(mesh);
 
-// Position cube mesh
-onRenderFcts.push(function(delta){
-	cube.rotation.y += delta * 0.0006;
+// Create 3D objects.
+var geometry = new THREE.PlaneGeometry(0.5, 0.5);
+var material = new THREE.MeshBasicMaterial({
+	map : new THREE.TextureLoader().load( 'images/you_eated_my_cookie.jpg' )
+});
+var mesh = new THREE.Mesh(geometry, material);
+mesh.position.x = -0.6
+mesh.position.z = -1
+mesh.name = 'plane2'
+mesh.lookAt(camera.position)
+clickableObjects.push(mesh)
+scene.add(mesh);
+
+
+var light = new THREE.HemisphereLight();
+light.color.setHSL( 0.6, 1, 0.6 );
+light.groundColor.setHSL( 0.095, 1, 0.75 );
+scene.add(light)
+
+//////////////////////////////////////////////////////////////////////////////
+//              Handle reticles
+//////////////////////////////////////////////////////////////////////////////
+
+reticle.signals.click.add(function(object3d){
+	console.log('click on', object3d.name)
 })
+	
+var nearingObject = null
+reticle.signals.nearingStart.add(function(object3d){
+	console.assert(nearingObject === null)
+	nearingObject = object3d
+	nearingObject.scale.multiplyScalar(1.1)
+})
+
+reticle.signals.nearingStop.add(function(){
+	console.assert(nearingObject !== null)
+	nearingObject.scale.multiplyScalar(1/1.1)
+	nearingObject = null
+})
+
 
 </script></html>

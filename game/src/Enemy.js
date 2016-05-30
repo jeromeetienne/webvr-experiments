@@ -38,10 +38,10 @@ Appx.Enemy = (function(){
 			
 			direction = THREE.Math.randFloat(0, Math.PI*2)
 			distance = 8 + THREE.Math.randFloatSpread(4)
-			// if( location.hostname === '127.0.0.1' ){
-			// 	direction = 3*Math.PI/2
-			// 	distance = 10				
-			// }
+			if( location.hostname === '127.0.0.1' ){
+				direction = 3*Math.PI/2
+				distance = 10				
+			}
 			mesh.position.x = distance * Math.cos(direction) 
 			mesh.position.z = distance * Math.sin(direction)
 			mesh.lookAt(scene.position)

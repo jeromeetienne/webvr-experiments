@@ -8,6 +8,20 @@ Thanks to @borismus and his fantastic work on
 - [game](http://jeromeetienne.github.io/webvr-experiment/game.html)
 - [boilerplate](http://jeromeetienne.github.io/webvr-experiment/boilerplate.html)
 
+### Game idea
+- like a game in a foire
+- little gltf duck are pumping up
+- you hit them with a hammer
+
+
+### Reticle
+- TODO THREEx.Reticle.signals.nearingStart/nearingStop signals
+  - signals triggered when the reticle is near a potential target
+  - Reticle UI is using it to make the reticle smaller when it isnt near a target
+- make the reticle close to the target - thus no focus trouble
+- dispatch the intersecting object in signals
+  - thus people can code feedback on intersecting object too
+
 ### TODO
 - make a start screen - get a instruction screen
 - remove font-awesome and put svg icon
@@ -27,8 +41,6 @@ Thanks to @borismus and his fantastic work on
   - you squashing kittens with a horrible guns
   - something with kitten and heart
 
-- make UI position/size in pixel instead
-  - why in pixel and not in normalized [-1,+1] ? because it is the same at the end, and it is easier to think about it as human
 
 - TODO what is the state automata for player/enemies/game
   - game state automata
@@ -39,7 +51,11 @@ Thanks to @borismus and his fantastic work on
   - signals mouseEnter/mouseLeave/click
 
 - pointerlock while on desktop - https://github.com/mrdoob/three.js/blob/master/examples/misc_controls_pointerlock.html
+<<<<<<< HEAD
   - seems more like a webvr-polyfill ui issue
+=======
+  - https://github.com/borismus/webvr-polyfill/issues/115
+>>>>>>> b95f90417db7b78c6f16a11035025503c46bc4ce
 - ipad issues
   - cant go fullscreen
   - cant come back from stereo

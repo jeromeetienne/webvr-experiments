@@ -8,13 +8,13 @@ html, body {
 	overflow: hidden;
 }
 
-#container {
-	position: fixed;
-}
-
 canvas {
 	position: fixed;
 	top: 0;
+}
+
+#container {
+	position: fixed;
 }
 
 #buttons {
