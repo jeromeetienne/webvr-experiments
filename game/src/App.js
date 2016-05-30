@@ -11,13 +11,16 @@ Appx.App = function(){
 		killedPlayer: new Signals.Signal(),
 	}
 	
-	this.state = 'playing'
+	this.state = 'startScreening'
 	
 	this.gotoState = function(newState){
 		var oldState = _this.state
 		console.log('app from', _this.state, 'to', newState)
-		if( newState === 'playing' ){
-			console.assert(oldState === 'dying')
+		if( newState === 'startScreening' ){
+			console.assert(false)
+			_this.state = newState
+		}else if( newState === 'playing' ){
+			console.assert(oldState === 'startScreening' || oldState === 'dying')
 			_this.state = newState
 		}else if( newState === 'dying' ){
 			console.assert(oldState === 'playing')

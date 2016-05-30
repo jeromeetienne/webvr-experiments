@@ -13,6 +13,21 @@
 </head>
 
 <body>
+	<div id="startScreen" class='splashScreen'>
+		<div class="instructions">
+			<span style="font-size:300%;">
+				Click to Play
+			</span>
+			<br />
+			<span style="color: #ccc;">
+				Cube Monsters will come at you.
+				<br />
+				You need to destroy them before they touch you.
+				<br />
+				Be Good! :)
+			</span>
+		</div>
+	</div>
 	<div id='container'>
 		<div id="buttons">
 			<i class="fa fa-volume-off" id='muteButton' title='Mute Sound'></i>
@@ -72,11 +87,15 @@ app.signals.stateChange.add(function(newState, oldState){
 	})
 })
 
-
 app.signals.stateChange.add(function(newState, oldState){
 	if( newState !== 'dying' )	return
 	app.score.resetScore()
 	app.gotoState('playing')
+})
+
+document.querySelector('#startScreen').addEventListener('click', function(){
+	app.gotoState('playing')
+	document.querySelector('#startScreen').style.display = 'none'
 })
 
 //////////////////////////////////////////////////////////////////////////////
@@ -138,10 +157,12 @@ function animate(timestamp) {
 	var delta = Math.min(timestamp - lastRender, 500);
 	lastRender = timestamp;
 	
-	// Update VR headset position and apply to camera.
-	controls.update();
-	
-	app.signals.update.dispatch(delta)
+	if( app.state === 'playing' ){
+		// Update VR headset position and apply to camera.
+		controls.update();
+		
+		app.signals.update.dispatch(delta)
+	}
 	
 	// Render the scene.
 	effect.render(scene, camera);
