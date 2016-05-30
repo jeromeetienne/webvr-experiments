@@ -286,18 +286,15 @@ reticle.signals.click.add(function(object3d){
 })
 	
 var nearingObject = null
-// var nearingMaterial = new THREE.MeshBasicMaterial( { color: 0x20cc80, wireframe: true, wireframeLinewidth: 3 } )
 reticle.signals.nearingStart.add(function(object3d){
 	console.assert(nearingObject === null)
 	nearingObject = object3d
-	// nearingObject = new THREE.Mesh(object3d.geometry, nearingMaterial);
-	// object3d.add(nearingObject)
-	nearingObject.scale.multiplyScalar(1.2)
+	nearingObject.scale.multiplyScalar(1.1)
 })
 
 reticle.signals.nearingStop.add(function(){
 	console.assert(nearingObject !== null)
-	nearingObject.scale.multiplyScalar(1/1.2)
+	nearingObject.scale.multiplyScalar(1/1.1)
 	nearingObject = null
 })
 
