@@ -9,11 +9,10 @@ Thanks to @borismus and his fantastic work on
 - [boilerplate](http://jeromeetienne.github.io/webvr-experiment/boilerplate.html)
 
 ### TODO
-- make a start screen
-- get a instruction screen
+- make a start screen - get a instruction screen
 - remove font-awesome and put svg icon
   - https://github.com/encharm/Font-Awesome-SVG-PNG/tree/master/black/svg
-- have a player death leading to a instruction screen
+- have a player death leading to a instruction screen ?
 
 
 - make game.html playable
@@ -40,6 +39,7 @@ Thanks to @borismus and his fantastic work on
   - signals mouseEnter/mouseLeave/click
 
 - pointerlock while on desktop - https://github.com/mrdoob/three.js/blob/master/examples/misc_controls_pointerlock.html
+  - seems more like a webvr-polyfill ui issue
 - ipad issues
   - cant go fullscreen
   - cant come back from stereo
