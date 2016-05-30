@@ -236,11 +236,11 @@ var clickableObjects = []
 // Create 3D objects.
 var geometry = new THREE.PlaneGeometry(0.5, 0.5);
 var material = new THREE.MeshBasicMaterial({
-	map : new THREE.TextureLoader().load( 'images/cute-kitten-quotes-Favim.com-1887494.jpg' )
+	map : new THREE.TextureLoader().load( 'images/cats/cute-kitten-quotes-Favim.com-1887494.jpg' )
 });
 var mesh = new THREE.Mesh(geometry, material);
 mesh.position.x = 0
-mesh.position.z = -1
+mesh.position.z = -1.5
 mesh.name = 'plane1'
 clickableObjects.push(mesh)
 scene.add(mesh);
@@ -248,11 +248,11 @@ scene.add(mesh);
 // Create 3D objects.
 var geometry = new THREE.PlaneGeometry(0.5, 0.5);
 var material = new THREE.MeshBasicMaterial({
-	map : new THREE.TextureLoader().load( 'images/you_eated_my_cookie.jpg' )
+	map : new THREE.TextureLoader().load( 'images/cats/you_eated_my_cookie.jpg' )
 });
 var mesh = new THREE.Mesh(geometry, material);
 mesh.position.x = 0.6
-mesh.position.z = -1
+mesh.position.z = -1.5
 mesh.name = 'plane2'
 mesh.lookAt(camera.position)
 clickableObjects.push(mesh)
@@ -261,12 +261,12 @@ scene.add(mesh);
 // Create 3D objects.
 var geometry = new THREE.PlaneGeometry(0.5, 0.5);
 var material = new THREE.MeshBasicMaterial({
-	map : new THREE.TextureLoader().load( 'images/you_eated_my_cookie.jpg' )
+	map : new THREE.TextureLoader().load( 'images/cats/cute-cat-pictures-with-captions.jpg' )
 });
 var mesh = new THREE.Mesh(geometry, material);
 mesh.position.x = -0.6
-mesh.position.z = -1
-mesh.name = 'plane2'
+mesh.position.z = -1.5
+mesh.name = 'plane3'
 mesh.lookAt(camera.position)
 clickableObjects.push(mesh)
 scene.add(mesh);
@@ -283,18 +283,19 @@ scene.add(light)
 
 reticle.signals.click.add(function(object3d){
 	console.log('click on', object3d.name)
+	object3d.material.color.setHex(Math.random()*0xffffff);
 })
 	
 var nearingObject = null
 reticle.signals.nearingStart.add(function(object3d){
 	console.assert(nearingObject === null)
 	nearingObject = object3d
-	nearingObject.scale.multiplyScalar(1.1)
+	nearingObject.scale.multiplyScalar(1.05)
 })
 
 reticle.signals.nearingStop.add(function(){
 	console.assert(nearingObject !== null)
-	nearingObject.scale.multiplyScalar(1/1.1)
+	nearingObject.scale.multiplyScalar(1/1.05)
 	nearingObject = null
 })
 

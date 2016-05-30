@@ -19,7 +19,7 @@ THREEx.Reticle = function(){
 	}
 
 	// parameters and states for hover
-	this.hoverDuration = 2;
+	this.hoverDuration = 0.5;
 	var hoverStartedAt = null
 	var hoveringObject = null
 
