@@ -9,7 +9,7 @@ THREEx.ReticleUI = function(reticle){
 	var _this = this;
 	
 	
-	var texture = new THREE.TextureLoader().load( "../images/sprite0.png" );
+	var texture = new THREE.TextureLoader().load( THREEx.ReticleUI.baseURL+"images/sprite0.png" );
 	var material = new THREE.SpriteMaterial( {
 		map: texture, 
 		color: 0xffffff, 
@@ -71,3 +71,5 @@ THREEx.ReticleUI = function(reticle){
 		tweenPosition.z = -2
 	})
 }
+
+THREEx.ReticleUI.baseURL = '../'

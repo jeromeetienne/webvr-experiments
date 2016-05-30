@@ -72,23 +72,23 @@ document.addEventListener('touchmove', function(event) {
 </script>
 
 <!-- three.js library -->
-<script src='vendor/three.js/build/three.js'></script>
+<script src='../../vendor/three.js/build/three.js'></script>
 
 <!-- VRControls.js applies the WebVR transformations to a three.js camera object. -->
-<script src='vendor/three.js/examples/js/controls/VRControls.js'></script>
+<script src='../../vendor/three.js/examples/js/controls/VRControls.js'></script>
 
 <!-- VREffect.js handles stereo camera setup and rendering.  -->
-<script src='vendor/three.js/examples/js/effects/VREffect.js'></script>
-<!-- <script src='vendor/three.js/examples/js/effects/VREffect-fromweb.js'></script> -->
+<script src='../../vendor/three.js/examples/js/effects/VREffect.js'></script>
+<!-- <script src='../../vendor/three.js/examples/js/effects/VREffect-fromweb.js'></script> -->
 
 <!-- A polyfill for the WebVR API.  -->
-<script src='vendor/webvr-polyfill.js'></script>
+<script src='../../vendor/webvr-polyfill.js'></script>
 
-<script src="vendor/three.js/editor/js/libs/signals.min.js"></script>
+<script src='../../vendor/three.js/editor/js/libs/signals.min.js'></script>
 <script>window.Signals = window.signals; delete window.signals</script>
 
-<script src="game/src/threex.reticle.js"></script>
-<script src="game/src/threex.reticleui.js"></script>
+<script src='../threex.reticle.js'></script>
+<script src='../threex.reticleui.js'></script>
 
 <script>
 var onRenderFcts = []
@@ -214,7 +214,7 @@ onRenderFcts.push(function(){
 // Add a repeating grid as a skybox.
 var boxWidth = 10;
 var loader = new THREE.TextureLoader();
-loader.load('../images/box.png', function onTextureLoaded(texture) {
+loader.load('../../images/box.png', function onTextureLoaded(texture) {
 	texture.wrapS = THREE.RepeatWrapping;
 	texture.wrapT = THREE.RepeatWrapping;
 	texture.repeat.set(boxWidth, boxWidth);
@@ -236,8 +236,10 @@ var clickableObjects = []
 // Create 3D objects.
 var geometry = new THREE.PlaneGeometry(0.5, 0.5);
 var material = new THREE.MeshBasicMaterial({
-	map : new THREE.TextureLoader().load( 'images/cats/cute-kitten-quotes-Favim.com-1887494.jpg' )
+	map : new THREE.TextureLoader().load( 'images/cute-kitten-quotes-Favim.com-1887494.jpg' )
 });
+material.map.minFilter = THREE.LinearFilter;
+material.map.format = THREE.RGBFormat;
 var mesh = new THREE.Mesh(geometry, material);
 mesh.position.x = 0
 mesh.position.z = -1.5
@@ -248,8 +250,10 @@ scene.add(mesh);
 // Create 3D objects.
 var geometry = new THREE.PlaneGeometry(0.5, 0.5);
 var material = new THREE.MeshBasicMaterial({
-	map : new THREE.TextureLoader().load( 'images/cats/you_eated_my_cookie.jpg' )
+	map : new THREE.TextureLoader().load( 'images/you_eated_my_cookie.jpg' )
 });
+material.map.minFilter = THREE.LinearFilter;
+material.map.format = THREE.RGBFormat;
 var mesh = new THREE.Mesh(geometry, material);
 mesh.position.x = 0.6
 mesh.position.z = -1.5
@@ -261,8 +265,10 @@ scene.add(mesh);
 // Create 3D objects.
 var geometry = new THREE.PlaneGeometry(0.5, 0.5);
 var material = new THREE.MeshBasicMaterial({
-	map : new THREE.TextureLoader().load( 'images/cats/cute-cat-pictures-with-captions.jpg' )
+	map : new THREE.TextureLoader().load( 'images/cute-cat-pictures-with-captions.jpg' )
 });
+material.map.minFilter = THREE.LinearFilter;
+material.map.format = THREE.RGBFormat;
 var mesh = new THREE.Mesh(geometry, material);
 mesh.position.x = -0.6
 mesh.position.z = -1.5
