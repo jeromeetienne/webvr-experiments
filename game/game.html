@@ -71,8 +71,8 @@ document.addEventListener('touchmove', function(event) {
 <script src="src/MiniMap.js"></script>
 <script src="src/Enemy.js"></script>
 
-<script src="../reticle/threex.reticle.js"></script>
-<script src="../reticle/threex.reticleui.js"></script>
+<script src="../threex.reticle/threex.reticle.js"></script>
+<script src="../threex.reticle/threex.reticleui.js"></script>
 <script>
 
 var app = new Appx.App()
@@ -294,7 +294,7 @@ function enterFullscreen (element) {
 
 ;(function(){
 	var reticle = new THREEx.Reticle()
-	THREEx.ReticleUI.baseURL = '../reticle/'
+	THREEx.ReticleUI.baseURL = '../threex.reticle/'
 	var reticleUI = new THREEx.ReticleUI(reticle)
 	scene.add(reticleUI.object3d)
 
