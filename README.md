@@ -10,6 +10,9 @@ Thanks to @borismus and his fantastic work on
 
 ### WebAR
 - modify webvr-polyfill to provide positional tracking with jsartoolkit
+- video in the back
+- works in mobile web. so android and google glass
+- makes ar as easy to code as normal 3d
 
 ### Game idea
 - like a game in a foire
