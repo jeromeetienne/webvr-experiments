@@ -8,11 +8,13 @@ Thanks to @borismus and his fantastic work on
 - [game](http://jeromeetienne.github.io/webvr-experiment/game.html)
 - [boilerplate](http://jeromeetienne.github.io/webvr-experiment/boilerplate.html)
 
+### WebAR
+- modify webvr-polyfill to provide positional tracking with jsartoolkit
+
 ### Game idea
 - like a game in a foire
 - little gltf duck are pumping up
 - you hit them with a hammer
-
 
 ### Reticle
 - TODO THREEx.Reticle.signals.nearingStart/nearingStop signals
