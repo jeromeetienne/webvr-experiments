@@ -216,7 +216,7 @@ function enterFullscreen (element) {
 // Add a repeating grid as a skybox.
 var boxWidth = 10;
 var loader = new THREE.TextureLoader();
-loader.load('../images/box.png', function onTextureLoaded(texture) {
+loader.load('images/box.png', function onTextureLoaded(texture) {
 	texture.wrapS = THREE.RepeatWrapping;
 	texture.wrapT = THREE.RepeatWrapping;
 	texture.repeat.set(boxWidth, boxWidth);
@@ -266,7 +266,8 @@ scene.add(seethruPlane);
 
 var video = document.createElement( 'video' );
 video.loop = true;
-video.src = 'videos/MaryOculus.webm';
+video.volume = 0
+// video.src = 'videos/MaryOculus.webm';
 video.src = 'videos/sintel.mp4';
 video.play();
 
