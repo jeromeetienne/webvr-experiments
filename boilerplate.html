@@ -152,7 +152,6 @@ requestAnimationFrame(animate);
 //////////////////////////////////////////////////////////////////////////////////
 
 function onResize() {
-	console.log('Resizing to %s x %s.', window.innerWidth, window.innerHeight);
 	effect.setSize(window.innerWidth, window.innerHeight);
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
