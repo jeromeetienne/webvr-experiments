@@ -5,8 +5,8 @@ Thanks to @borismus and his fantastic work on
 [webvr-polyfill](https://github.com/borismus/webvr-polyfill)
 
 ### Show, Don't tell
-- [game](http://jeromeetienne.github.io/webvr-experiment/game.html)
-- [boilerplate](http://jeromeetienne.github.io/webvr-experiment/boilerplate.html)
+- [game](http://jeromeetienne.github.io/webvr-experiments/game.html)
+- [boilerplate](http://jeromeetienne.github.io/webvr-experiments/boilerplate.html)
 
 ### WebAR
 - modify webvr-polyfill to provide positional tracking with jsartoolkit
