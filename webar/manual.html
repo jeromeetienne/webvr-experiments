@@ -144,11 +144,12 @@ function animate(timestamp) {
 	camera.updateMatrix(true)
 	camera.updateMatrixWorld(true)
 
-	camera.lookAt(scene.position)
 	
 	camera.position.copy(markerRoot.position)
 	camera.position.negate()
 	camera.quaternion.copy(markerRoot.quaternion)
+
+	// camera.lookAt(scene.position)
 
 	// camera.position.copy(markerRoot.position)
 	// camera.quaternion.copy(markerRoot.quaternion)
@@ -214,42 +215,31 @@ function enterFullscreen (element) {
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//		Code Separator
-//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//		add an object in the scene
+//////////////////////////////////////////////////////////////////////////////////
 
-// Add a repeating grid as a skybox.
-var boxWidth = 3;
-var loader = new THREE.TextureLoader();
-loader.load('../images/box.png', function onTextureLoaded(texture) {
-	texture.wrapS = THREE.RepeatWrapping;
-	texture.wrapT = THREE.RepeatWrapping;
-	texture.repeat.set(boxWidth, boxWidth);
-	
-	var geometry = new THREE.BoxGeometry(boxWidth, boxWidth, boxWidth, 4, 4);
-	var material = new THREE.MeshBasicMaterial({
-		// map: texture,
-		color: 0x01BE00,
-		side: THREE.DoubleSide,
-		wireframe: true,
-	});
-	
-	var skybox = new THREE.Mesh(geometry, material);
-	scene.add(skybox);
-});
+// add a torus knot	
+var geometry	= new THREE.CubeGeometry(1,1,1);
+var material	= new THREE.MeshNormalMaterial({
+	transparent : true,
+	opacity: 0.5,
+	side: THREE.DoubleSide
+}); 
+var mesh	= new THREE.Mesh( geometry, material );
+mesh.position.z	= geometry.parameters.height/2
+mesh.scale.multiplyScalar(3)
+scene.add( mesh );
 
-// Create 3D objects.
-var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-var material = new THREE.MeshNormalMaterial();
-var cube = new THREE.Mesh(geometry, material);
-cube.position.z = -1
+var geometry	= new THREE.TorusKnotGeometry(0.3,0.1,32,32);
+var material	= new THREE.MeshNormalMaterial(); 
+var mesh	= new THREE.Mesh( geometry, material );
+mesh.position.z	= 0.5
+mesh.scale.multiplyScalar(3)
+scene.add( mesh );
 
-// Add cube mesh to your three.js scene
-scene.add(cube);
-
-// Position cube mesh
-onRenderFcts.push(function(delta){
-	cube.rotation.y += delta * 0.0006;
+onRenderFcts.push(function(){
+	mesh.rotation.x += 0.1
 })
 
 
@@ -274,9 +264,9 @@ var video = document.createElement( 'video' );
 video.loop = true;
 video.volume = 0
 video.src = 'videos/headtracking.mp4';
+video.src = 'videos/output_4.mp4';
 video.width = 640;
 video.height = 480;
-// video.src = '../videos/sintel.mp4';
 video.play();
 
 
@@ -295,29 +285,24 @@ onRenderFcts.push(function(delta){
 	camera.localToWorld(seethruPlane.position)
 	
 	// get seethruPlane quaternion
-	var _position = new THREE.Vector3();
-	var _quaternion = new THREE.Quaternion();
-	var _scale = new THREE.Vector3();
-	camera.matrixWorld.decompose( _position, _quaternion, _scale );	
-	seethruPlane.quaternion.copy(_quaternion)
+	camera.matrixWorld.decompose( camera.position, camera.quaternion, camera.scale );	
+	seethruPlane.quaternion.copy( camera.quaternion)
 	
 	// get seethruPlane height relative to fov
 	seethruPlane.scale.y = Math.tan(THREE.Math.DEG2RAD * camera.fov/2)*position.length()
-
 	// get seethruPlane aspect
 	seethruPlane.scale.x = seethruPlane.scale.y * camera.aspect
 	
 	// to mirror the video in x
 	// seethruPlane.scale.x *= -1
-
-	// update seethruPlane - should be done only on init/resize but issue with video init
-	updateSeeThruAspectUv(seethruPlane)	
 })
 
 window.addEventListener('resize', function(){
 	updateSeeThruAspectUv(seethruPlane)	
 })
-updateSeeThruAspectUv(seethruPlane)
+video.addEventListener('canplaythrough', function(){
+	updateSeeThruAspectUv(seethruPlane)
+})
 
 function updateSeeThruAspectUv(plane){
 	if( video.videoWidth === 0 )	return
