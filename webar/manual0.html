@@ -13,7 +13,7 @@
 html, body {
 	width: 100%;
 	height: 100%;
-	background-color: #004;
+	background-color: #000;
 	color: #fff;
 	margin: 0px;
 	padding: 0;
@@ -103,19 +103,14 @@ document.querySelector('#fullScreenContainer').appendChild(renderer.domElement);
 var scene = new THREE.Scene();
 
 // Create a three.js camera.
-// var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-
-// Create a camera and a marker root object for your Three.js scene.
-var camera = new THREE.Camera();
-camera.matrixAutoUpdate = false;
-scene.add(camera);
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
 
 // Apply VR headset positional data to camera.
-// var controls = new THREE.VRControls(camera);
+var controls = new THREE.VRControls(camera);
 
 // Apply VR stereo rendering to renderer.
 var effect = new THREE.VREffect(renderer);
-effect.setSize(640, 480);
+effect.setSize(window.innerWidth, window.innerHeight);
 
 // Get the VRDisplay and save it for later.
 var vrDisplay = null;
@@ -136,6 +131,33 @@ var lastRender = 0;
 function animate(timestamp) {
 	var delta = Math.min(timestamp - lastRender, 500);
 	lastRender = timestamp;
+	
+	// Update VR headset position and apply to camera.
+	controls.update();
+
+	camera.updateMatrix(true)
+	camera.updateMatrixWorld(true)
+
+	// camera.matrixWorld.decompose( camera.position, camera.quaternion, camera.scale );	
+	markerRoot.matrixWorld.decompose( markerRoot.position, markerRoot.quaternion, markerRoot.scale );	
+
+	camera.updateMatrix(true)
+	camera.updateMatrixWorld(true)
+
+	
+	camera.position.copy(markerRoot.position)
+	camera.position.negate()
+	camera.quaternion.copy(markerRoot.quaternion)
+
+	// camera.lookAt(scene.position)
+
+	// camera.position.copy(markerRoot.position)
+	// camera.quaternion.copy(markerRoot.quaternion)
+
+
+
+	camera.updateMatrix(true)
+	camera.updateMatrixWorld(true)
 
 	// call each function for the rendering
 	onRenderFcts.forEach(function(onRenderFct){
@@ -157,10 +179,9 @@ requestAnimationFrame(animate);
 //////////////////////////////////////////////////////////////////////////////////
 
 function onResize() {
-	console.log('no resize')
-	// effect.setSize(window.innerWidth, window.innerHeight);
-	// camera.aspect = window.innerWidth / window.innerHeight;
-	// camera.updateProjectionMatrix();
+	effect.setSize(window.innerWidth, window.innerHeight);
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
 }
 
 // Resize the WebGL canvas when we resize and also when we change modes.
@@ -194,24 +215,151 @@ function enterFullscreen (element) {
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+//		add an object in the scene
+//////////////////////////////////////////////////////////////////////////////////
+
+// add a torus knot	
+var geometry	= new THREE.CubeGeometry(1,1,1);
+var material	= new THREE.MeshNormalMaterial({
+	transparent : true,
+	opacity: 0.5,
+	side: THREE.DoubleSide
+}); 
+var mesh	= new THREE.Mesh( geometry, material );
+mesh.position.z	= geometry.parameters.height/2
+mesh.scale.multiplyScalar(3)
+scene.add( mesh );
+
+var geometry	= new THREE.TorusKnotGeometry(0.3,0.1,32,32);
+var material	= new THREE.MeshNormalMaterial(); 
+var mesh	= new THREE.Mesh( geometry, material );
+mesh.position.z	= 0.5
+mesh.scale.multiplyScalar(3)
+scene.add( mesh );
+
+onRenderFcts.push(function(){
+	mesh.rotation.x += 0.1
+})
+
+
+//////////////////////////////////////////////////////////////////////////////
+//	plane always in front of the camera, exactly as big as the viewpoer
+//////////////////////////////////////////////////////////////////////////////
+
+var geometry = new THREE.PlaneGeometry(2, 2);
+var material = new THREE.MeshBasicMaterial({
+	// map : new THREE.TextureLoader().load('images/UV_Grid_Sm.jpg'),
+	side: THREE.DoubleSide,
+	opacity: 0.5,
+	transparent: true,
+});
+var seethruPlane = new THREE.Mesh(geometry, material);
+seethruPlane.position.x = 0
+seethruPlane.position.z = -1
+scene.add(seethruPlane);
+
+
+var video = document.createElement( 'video' );
+video.loop = true;
+video.volume = 0
+video.src = 'videos/headtracking.mp4';
+// video.src = 'videos/output_4.mp4';
+video.width = 640;
+video.height = 480;
+video.play();
+
+
+material.map = new THREE.VideoTexture( video );
+material.map.minFilter = THREE.NearestFilter;
+material.map.maxFilter = THREE.NearestFilter;
+material.map.format = THREE.RGBFormat;
+material.map.generateMipmaps = false;
+
+onRenderFcts.push(function(delta){
+	camera.updateMatrixWorld(true)
+	
+	// get seethruPlane position
+	var position = new THREE.Vector3(0,0,-1)
+	seethruPlane.position.copy(position)
+	camera.localToWorld(seethruPlane.position)
+	
+	// get seethruPlane quaternion
+	camera.matrixWorld.decompose( camera.position, camera.quaternion, camera.scale );	
+	seethruPlane.quaternion.copy( camera.quaternion)
+	
+	// get seethruPlane height relative to fov
+	seethruPlane.scale.y = Math.tan(THREE.Math.DEG2RAD * camera.fov/2)*position.length()
+	// get seethruPlane aspect
+	seethruPlane.scale.x = seethruPlane.scale.y * camera.aspect
+	
+	// to mirror the video in x
+	// seethruPlane.scale.x *= -1
+})
+
+window.addEventListener('resize', function(){
+	updateSeeThruAspectUv(seethruPlane)	
+})
+video.addEventListener('canplaythrough', function(){
+	updateSeeThruAspectUv(seethruPlane)
+})
+
+function updateSeeThruAspectUv(plane){
+	if( video.videoWidth === 0 )	return
+	if( video.videoHeight === 0 )	return
+
+	var faceVertexUvs = plane.geometry.faceVertexUvs[0]
+	var screenAspect = window.innerWidth / window.innerHeight
+	var videoAspect = video.videoWidth / video.videoHeight
+	
+	if( screenAspect >= videoAspect ){
+		var actualHeight = videoAspect / screenAspect;
+		// faceVertexUvs y 0
+		faceVertexUvs[0][1].y = 0.5 - actualHeight/2
+		faceVertexUvs[1][0].y = 0.5 - actualHeight/2
+		faceVertexUvs[1][1].y = 0.5 - actualHeight/2
+
+		// faceVertexUvs y 1
+		faceVertexUvs[0][0].y = 0.5 + actualHeight/2
+		faceVertexUvs[0][2].y = 0.5 + actualHeight/2
+		faceVertexUvs[1][2].y = 0.5 + actualHeight/2
+
+		plane.geometry.uvsNeedUpdate = true
+	}else{
+		var actualWidth = screenAspect / videoAspect;
+
+		// faceVertexUvs x 0
+		faceVertexUvs[0][0].x = 0.5 - actualWidth/2
+		faceVertexUvs[0][1].x = 0.5 - actualWidth/2
+		faceVertexUvs[1][0].x = 0.5 - actualWidth/2
+		
+		// faceVertexUvs x 1
+		faceVertexUvs[0][2].x = 0.5 + actualWidth/2
+		faceVertexUvs[1][1].x = 0.5 + actualWidth/2
+		faceVertexUvs[1][2].x = 0.5 + actualWidth/2
+
+
+		plane.geometry.uvsNeedUpdate = true
+	}
+	
+	// console.log(screenAspect, videoAspect, video.videoWidth)
+	
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //		Code Separator
 //////////////////////////////////////////////////////////////////////////////
 
 
 var debugEnabled = false
-// var debugEnabled = true
 	
 var arController = null
 var cameraParameters = new ARCameraParam('data/camera_para.dat', function() {
 	arController = new ARController(video.width, video.height, cameraParameters);
-	if( debugEnabled ){
-		arController.debugSetup();
-		arController.canvas.style.opacity = 0.1
-	}
+	if( debugEnabled )	arController.debugSetup();
 
-	var cameraMatrix = arController.getCameraMatrix();
-	camera.projectionMatrix.elements.set(cameraMatrix);
+	// var cameraMatrix = arController.getCameraMatrix();
+	// camera.projectionMatrix.elements.set(cameraMatrix);
 
 	// load kanji pattern
 	arController.loadMarker('Data/patt.kanji', function(markerId) {
@@ -243,15 +391,13 @@ onRenderFcts.push(function(){
 	var markerNum = arController.getMarkerNum();
 	if (markerNum > 0) {
 		// if( markerRoot.visible === false ) {
-			arController.getTransMatSquare(0 /* Marker index */, 3 /* Marker width */, markerRoot.userData.markerMatrix);
+			arController.getTransMatSquare(0 /* Marker index */, 1 /* Marker width */, markerRoot.userData.markerMatrix);
 		// } else {
 			// arController.getTransMatSquareCont(0, 1, markerRoot.userData.markerMatrix, markerRoot.userData.markerMatrix);
 		// }
 		arController.transMatToGLMat(markerRoot.userData.markerMatrix, markerRoot.matrix.elements);
 		
-
-		markerRoot.updateMatrixWorld(true)
-		markerRoot.matrix.decompose(markerRoot.position,markerRoot.quaternion, markerRoot.scale)
+		markerRoot.matrix.decompose(markerRoot.position, new THREE.Quaternion, new THREE.Vector3)
 	}
 
 	// objects visible IIF there is a marker
@@ -262,142 +408,5 @@ onRenderFcts.push(function(){
 	}
 	
 })
-
-//////////////////////////////////////////////////////////////////////////////
-//	plane always in front of the camera, exactly as big as the viewpoer
-//////////////////////////////////////////////////////////////////////////////
-
-var geometry = new THREE.PlaneGeometry(2, 2);
-var material = new THREE.MeshBasicMaterial({
-	// map : new THREE.TextureLoader().load('images/UV_Grid_Sm.jpg'),
-	side: THREE.DoubleSide,
-	// opacity: 0.5,
-	// transparent: true,
-});
-var seethruPlane = new THREE.Mesh(geometry, material);
-seethruPlane.position.x = 0
-seethruPlane.position.z = 17
-scene.add(seethruPlane);
-
-
-var video = document.createElement( 'video' );
-video.loop = true;
-video.volume = 0
-// video.src = 'videos/headtracking.mp4';
-video.src = 'videos/output_4.mp4';
-video.width = 640;
-video.height = 480;
-video.play();
-
-
-material.map = new THREE.VideoTexture( video );
-material.map.minFilter = THREE.NearestFilter;
-material.map.maxFilter = THREE.NearestFilter;
-material.map.format = THREE.RGBFormat;
-material.map.generateMipmaps = false;
-
-onRenderFcts.push(function(delta){
-// return
-	camera.updateMatrixWorld(true)
-	
-	// get seethruPlane position
-	var position = new THREE.Vector3(0,0,25)
-	seethruPlane.position.copy(position)
-	camera.localToWorld(seethruPlane.position)
-
-	// get seethruPlane quaternion
-	camera.matrixWorld.decompose( camera.position, camera.quaternion, camera.scale );	
-	seethruPlane.quaternion.copy( camera.quaternion)
-
-// return
-	
-	// get seethruPlane height relative to fov
-	var fov = camera.fov
-	var fov = 22*2
-	seethruPlane.scale.y = Math.tan(THREE.Math.DEG2RAD * fov/2)*position.length()
-	// seethruPlane.scale.y = 0.3880*position.length()
-	// get seethruPlane aspect
-	var cameraAspect = camera.aspect
-	var cameraAspect = 640/480
-	seethruPlane.scale.x = seethruPlane.scale.y * cameraAspect
-
-	seethruPlane.scale.y *= -1
-	
-	// to mirror the video in x
-	// seethruPlane.scale.x *= -1
-})
-
-window.addEventListener('resize', function(){
-	updateSeeThruAspectUv(seethruPlane)	
-})
-video.addEventListener('canplaythrough', function(){
-	updateSeeThruAspectUv(seethruPlane)
-})
-
-function updateSeeThruAspectUv(plane){
-	if( video.videoWidth === 0 )	return
-	if( video.videoHeight === 0 )	return
-return
-	var faceVertexUvs = plane.geometry.faceVertexUvs[0]
-	var screenAspect = window.innerWidth / window.innerHeight
-	var videoAspect = video.videoWidth / video.videoHeight
-	
-	plane.geometry.uvsNeedUpdate = true
-
-	if( screenAspect >= videoAspect ){
-		var actualHeight = videoAspect / screenAspect;
-		// faceVertexUvs y 0
-		faceVertexUvs[0][1].y = 0.5 - actualHeight/2
-		faceVertexUvs[1][0].y = 0.5 - actualHeight/2
-		faceVertexUvs[1][1].y = 0.5 - actualHeight/2
-
-		// faceVertexUvs y 1
-		faceVertexUvs[0][0].y = 0.5 + actualHeight/2
-		faceVertexUvs[0][2].y = 0.5 + actualHeight/2
-		faceVertexUvs[1][2].y = 0.5 + actualHeight/2
-	}else{
-		var actualWidth = screenAspect / videoAspect;
-
-		// faceVertexUvs x 0
-		faceVertexUvs[0][0].x = 0.5 - actualWidth/2
-		faceVertexUvs[0][1].x = 0.5 - actualWidth/2
-		faceVertexUvs[1][0].x = 0.5 - actualWidth/2
-		
-		// faceVertexUvs x 1
-		faceVertexUvs[0][2].x = 0.5 + actualWidth/2
-		faceVertexUvs[1][1].x = 0.5 + actualWidth/2
-		faceVertexUvs[1][2].x = 0.5 + actualWidth/2
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////////
-//		add an object in the scene
-//////////////////////////////////////////////////////////////////////////////////
-
-// add a torus knot	
-var geometry	= new THREE.CubeGeometry(1,1,1);
-var material	= new THREE.MeshNormalMaterial({
-	transparent : true,
-	opacity: 0.5,
-	side: THREE.DoubleSide
-}); 
-var mesh	= new THREE.Mesh( geometry, material );
-mesh.position.z	= geometry.parameters.height/2
-mesh.scale.multiplyScalar(3)
-markerRoot.add( mesh );
-
-var geometry	= new THREE.TorusKnotGeometry(0.3,0.1,32,32);
-var material	= new THREE.MeshNormalMaterial(); 
-var mesh	= new THREE.Mesh( geometry, material );
-mesh.position.z	= 0.5
-mesh.scale.multiplyScalar(3)
-markerRoot.add( mesh );
-
-onRenderFcts.push(function(){
-	mesh.rotation.x += 0.1
-})
-
-
-
 
 </script></html>
