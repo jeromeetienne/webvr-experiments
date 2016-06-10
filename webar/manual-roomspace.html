@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+
+<html lang='en'>
+<head>
+<title>Web VR Boilerplate</title>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no'>
+<meta name='mobile-web-app-capable' content='yes'>
+<meta name='apple-mobile-web-app-capable' content='yes' />
+<meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
+<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css'>
+<style>
+html, body {
+	width: 100%;
+	height: 100%;
+	background-color: #000;
+	color: #fff;
+	margin: 0px;
+	padding: 0;
+	overflow: hidden;
+}
+
+canvas {
+	position: fixed;
+	top: 0;
+}
+#fullScreenContainer {
+	position: fixed;
+}
+
+#buttons {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	z-index: 1;
+	/*to prevent mouse selection of the button*/
+	user-select: none;
+	-webkit-user-select: none;
+}
+#buttons i {
+	color: #ccc;
+	font-size: 150%;
+	margin-bottom: 0.4em;
+	margin-right: 0.4em;
+}
+#buttons i:hover {
+	color: #fff;
+	text-shadow: 0px 0px 5px lightblue, 0px 0px 10px lightblue;
+	cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+	<div id='fullScreenContainer'>
+		<div id='buttons'>
+			<i class='fa fa-arrows-alt' id='fullscreenButton'></i>
+			<i class='fa fa-eye' id='vrButton'></i>
+			<i class='fa fa-star' id='resetButton' title='reset position'></i>
+		</div>
+	</div>
+</body>
+
+<script>
+WebVRConfig = {
+	BUFFER_SCALE: 0.5,
+};
+
+document.addEventListener('touchmove', function(event) {
+	event.preventDefault();
+});
+</script>
+
+<!-- three.js library -->
+<script src='../vendor/three.js/build/three.js'></script>
+
+<!-- VRControls.js applies the WebVR transformations to a three.js camera object. -->
+<script src='../vendor/three.js/examples/js/controls/VRControls.js'></script>
+
+<!-- VREffect.js handles stereo camera setup and rendering.  -->
+<script src='../vendor/three.js/examples/js/effects/VREffect.js'></script>
+<!-- <script src='../vendor/three.js/examples/js/effects/VREffect-fromweb.js'></script> -->
+
+<!-- A polyfill for the WebVR API.  -->
+<script src='../vendor/webvr-polyfill.js'></script>
+
+<!-- jsartookit -->
+<script src="vendor/jsartoolkit/artoolkit.debug.js"></script>
+<script src="vendor/jsartoolkit/artoolkit.api.js"></script>
+
+<script>
+var onRenderFcts = []
+
+// Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
+// Only enable it if you actually need to.
+var renderer = new THREE.WebGLRenderer({antialias: false});
+renderer.setPixelRatio(Math.floor(window.devicePixelRatio));
+
+// Append the canvas element created by the renderer to fullScreenContainer
+document.querySelector('#fullScreenContainer').appendChild(renderer.domElement);
+
+// Create a three.js scene.
+var scene = new THREE.Scene();
+
+// Create a three.js camera.
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+scene.add(camera);
+
+// Apply VR headset positional data to camera.
+var controls = new THREE.VRControls(camera);
+
+// Apply VR stereo rendering to renderer.
+var effect = new THREE.VREffect(renderer);
+effect.setSize(window.innerWidth, window.innerHeight);
+
+// Get the VRDisplay and save it for later.
+var vrDisplay = null;
+navigator.getVRDisplays().then(function(displays) {
+	if (displays.length > 0) {
+		vrDisplay = displays[0];
+	}
+	
+	if( vrDisplay !== null ){
+		if( vrDisplay.capabilities.canPresent !== true ){
+			document.querySelector('#vrButton').style.display = 'none'
+		}
+	}
+});
+
+// Request animation frame loop function
+var lastRender = 0;
+function animate(timestamp) {
+	var delta = Math.min(timestamp - lastRender, 500);
+	lastRender = timestamp;
+	
+	// Update VR headset position and apply to camera.
+	// controls.update();
+
+	// call each function for the rendering
+	onRenderFcts.forEach(function(onRenderFct){
+		onRenderFct(delta)
+	})
+	
+	// Render the scene.
+	effect.render(scene, camera);
+	
+	// Keep looping.
+	requestAnimationFrame(animate);
+}
+
+// Kick off animation loop.
+requestAnimationFrame(animate);
+
+//////////////////////////////////////////////////////////////////////////////////
+//		Comments
+//////////////////////////////////////////////////////////////////////////////////
+
+function onResize() {
+	effect.setSize(window.innerWidth, window.innerHeight);
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+}
+
+// Resize the WebGL canvas when we resize and also when we change modes.
+window.addEventListener('resize', onResize);
+window.addEventListener('vrdisplaypresentchange', function onVRDisplayPresentChange() {
+	onResize();
+});
+
+// Button click handlers.
+document.querySelector('#fullscreenButton').addEventListener('click', function() {
+	var domElement = document.querySelector('#fullScreenContainer')
+	enterFullscreen(domElement);
+});
+document.querySelector('#vrButton').addEventListener('click', function() {
+	vrDisplay.requestPresent([{source: renderer.domElement}]);
+});
+document.querySelector('#resetButton').addEventListener('click', function() {
+	vrDisplay.resetPose();
+});
+
+function enterFullscreen (element) {
+	if (element.requestFullscreen) {
+		element.requestFullscreen();
+	} else if (element.mozRequestFullScreen) {
+		element.mozRequestFullScreen();
+	} else if (element.webkitRequestFullscreen) {
+		element.webkitRequestFullscreen();
+	} else if (element.msRequestFullscreen) {
+		element.msRequestFullscreen();
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//		Code Separator
+//////////////////////////////////////////////////////////////////////////////
+
+
+var debugEnabled = true
+var arController = null
+var cameraParameters = new ARCameraParam('data/camera_para.dat', function() {
+	arController = new ARController(video.width, video.height, cameraParameters);
+	if( debugEnabled )	arController.debugSetup();
+
+	var cameraMatrix = arController.getCameraMatrix();
+	camera.projectionMatrix.elements.set(cameraMatrix);
+
+
+        // arSetPatternDetectionMode(arHandle, AR_MATRIX_CODE_DETECTION);
+        arController.setPatternDetectionMode(artoolkit.AR_MATRIX_CODE_DETECTION);
+
+        // arSetMatrixCodeType(arHandle, AR_MATRIX_CODE_3x3_HAMMING63);
+        arController.setMatrixCodeType(artoolkit.AR_MATRIX_CODE_3x3_HAMMING63);
+})		
+
+
+//////////////////////////////////////////////////////////////////////////////
+//		Code Separator
+//////////////////////////////////////////////////////////////////////////////
+// create the marker Root
+var markerRoot = new THREE.Object3D();
+markerRoot.name = 'Marker Root'
+markerRoot.userData.markerMatrix = new Float64Array(12);
+markerRoot.matrixAutoUpdate = false;
+// markerRoot.visible = false
+scene.add(markerRoot);
+
+onRenderFcts.push(function(){
+// return
+	if (!arController) return;
+
+	arController.detectMarker(video);
+
+	if( debugEnabled )	arController.debugDraw();		
+
+	// update markerRoot with the found markers
+	var markerCount = arController.getMarkerNum();
+	// console.log('markerCount', markerCount)
+	
+	for (var markerIdx = 0; markerIdx < markerCount; markerIdx++) {
+		var markerInfo = arController.getMarker(markerIdx);
+		
+		// console.log('markerIdx', markerIdx, 'markerInfo', markerInfo.id)
+		if( markerInfo.id !== 2 )	continue
+		
+		// if( markerRoot.visible === false ) {
+			arController.getTransMatSquare(markerIdx /* Marker index */, 1 /* Marker width */, markerRoot.userData.markerMatrix);
+		// } else {
+			// arController.getTransMatSquareCont(markerIdx, 1, markerRoot.userData.markerMatrix, markerRoot.userData.markerMatrix);
+		// }
+		arController.transMatToGLMat(markerRoot.userData.markerMatrix, markerRoot.matrix.elements);
+
+		markerRoot.matrix.decompose(markerRoot.position, markerRoot.quaternion, markerRoot.scale)
+// console.log('position', markerRoot.position)
+		// objects visible IIF there is a marker
+		// if (markerNum > 0) {
+// debugger
+			markerRoot.visible = true;
+		// } else {
+			// markerRoot.visible = false;
+		// }
+
+		var object3d = new THREE.Object3D
+		object3d.matrix.identity();
+		object3d.matrix.setPosition(new THREE.Vector3(+2, 0, 0));
+
+		var inverseMatrix = new THREE.Matrix4().copy(markerRoot.matrix);
+		object3d.applyMatrix(inverseMatrix);
+
+		object3d.matrix.decompose(object3d.position, object3d.quaternion, object3d.scale)
+		
+		console.log(object3d.position)
+		camera.matrix.setPosition(object3d.position)
+
+		camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
+	}
+})
+
+//////////////////////////////////////////////////////////////////////////////////
+//		add an object in the scene
+//////////////////////////////////////////////////////////////////////////////////
+
+// add a torus knot	
+var geometry	= new THREE.CubeGeometry(1,1,1);
+var material	= new THREE.MeshNormalMaterial({
+	transparent : true,
+	opacity: 0.5,
+	side: THREE.DoubleSide
+}); 
+var mesh	= new THREE.Mesh( geometry, material );
+mesh.position.z	= geometry.parameters.height/2
+mesh.scale.multiplyScalar(3)
+mesh.position.z	= 0.5
+mesh.position.z = 20
+// markerRoot.add( mesh );
+scene.add( mesh )
+
+var geometry	= new THREE.TorusKnotGeometry(0.3,0.1,32,32);
+var material	= new THREE.MeshNormalMaterial(); 
+var torus	= new THREE.Mesh( geometry, material );
+torus.position.z	= 0.5
+mesh.add(torus)
+
+onRenderFcts.push(function(){
+	torus.rotation.x += 0.1
+})
+
+
+//////////////////////////////////////////////////////////////////////////////
+//	plane always in front of the camera, exactly as big as the viewpoer
+//////////////////////////////////////////////////////////////////////////////
+
+var geometry = new THREE.PlaneGeometry(2, 2);
+var material = new THREE.MeshBasicMaterial({
+	// map : new THREE.TextureLoader().load('images/UV_Grid_Sm.jpg'),
+	side: THREE.DoubleSide,
+	opacity: 0.5,
+	transparent: true,
+});
+var seethruPlane = new THREE.Mesh(geometry, material);
+seethruPlane.position.x = 0
+seethruPlane.position.z = -1
+scene.add(seethruPlane);
+
+
+var video = document.createElement( 'video' );
+video.loop = true;
+video.volume = 0
+video.src = 'videos/VID_20160503_165602.mp4';
+// video.src = 'videos/headtracking.mp4';
+// video.src = 'videos/output_4.mp4';
+video.width = 640;
+video.height = 480;
+video.play();
+
+
+material.map = new THREE.VideoTexture( video );
+material.map.minFilter = THREE.NearestFilter;
+material.map.maxFilter = THREE.NearestFilter;
+material.map.format = THREE.RGBFormat;
+material.map.generateMipmaps = false;
+
+onRenderFcts.push(function(delta){
+	camera.updateMatrixWorld(true)
+	
+	// get seethruPlane position
+	var position = new THREE.Vector3(0,0,-1)
+	seethruPlane.position.copy(position)
+	camera.localToWorld(seethruPlane.position)
+	
+	// get seethruPlane quaternion
+	camera.matrixWorld.decompose( camera.position, camera.quaternion, camera.scale );	
+	seethruPlane.quaternion.copy( camera.quaternion)
+	
+	// get seethruPlane height relative to fov
+	seethruPlane.scale.y = Math.tan(THREE.Math.DEG2RAD * camera.fov/2)*position.length()
+	// get seethruPlane aspect
+	seethruPlane.scale.x = seethruPlane.scale.y * camera.aspect
+	
+	// to mirror the video in x
+	// seethruPlane.scale.x *= -1
+})
+
+window.addEventListener('resize', function(){
+	updateSeeThruAspectUv(seethruPlane)	
+})
+video.addEventListener('canplaythrough', function(){
+	updateSeeThruAspectUv(seethruPlane)
+})
+
+function updateSeeThruAspectUv(plane){
+	if( video.videoWidth === 0 )	return
+	if( video.videoHeight === 0 )	return
+
+	var faceVertexUvs = plane.geometry.faceVertexUvs[0]
+	var screenAspect = window.innerWidth / window.innerHeight
+	var videoAspect = video.videoWidth / video.videoHeight
+	
+	if( screenAspect >= videoAspect ){
+		var actualHeight = videoAspect / screenAspect;
+		// faceVertexUvs y 0
+		faceVertexUvs[0][1].y = 0.5 - actualHeight/2
+		faceVertexUvs[1][0].y = 0.5 - actualHeight/2
+		faceVertexUvs[1][1].y = 0.5 - actualHeight/2
+
+		// faceVertexUvs y 1
+		faceVertexUvs[0][0].y = 0.5 + actualHeight/2
+		faceVertexUvs[0][2].y = 0.5 + actualHeight/2
+		faceVertexUvs[1][2].y = 0.5 + actualHeight/2
+
+		plane.geometry.uvsNeedUpdate = true
+	}else{
+		var actualWidth = screenAspect / videoAspect;
+
+		// faceVertexUvs x 0
+		faceVertexUvs[0][0].x = 0.5 - actualWidth/2
+		faceVertexUvs[0][1].x = 0.5 - actualWidth/2
+		faceVertexUvs[1][0].x = 0.5 - actualWidth/2
+		
+		// faceVertexUvs x 1
+		faceVertexUvs[0][2].x = 0.5 + actualWidth/2
+		faceVertexUvs[1][1].x = 0.5 + actualWidth/2
+		faceVertexUvs[1][2].x = 0.5 + actualWidth/2
+
+
+		plane.geometry.uvsNeedUpdate = true
+	}
+	
+	// console.log(screenAspect, videoAspect, video.videoWidth)
+	
+}
+
+</script></html>
