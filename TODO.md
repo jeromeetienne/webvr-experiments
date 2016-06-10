@@ -1,4 +1,6 @@
 - issue in the controls in stero ?
+- seethru in stereo bug due to webvr-polyfill submitFrame
+  - not clearing possible
 - seethru with orthogonal camera
   - code it and see
   - see how it react in stereo

@@ -90,7 +90,10 @@ var onRenderFcts = []
 
 // Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
 // Only enable it if you actually need to.
-var renderer = new THREE.WebGLRenderer({antialias: false});
+var renderer = new THREE.WebGLRenderer({
+	// antialias: false,
+	preserveDrawingBuffer: true,
+});
 renderer.setPixelRatio(Math.floor(window.devicePixelRatio));
 renderer.autoClear = false;
 
