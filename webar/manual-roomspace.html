@@ -106,11 +106,6 @@ var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
 scene.add(camera);
 
-// Create a three.js camera.
-var cameraDebug = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
-scene.add(cameraDebug);
-cameraDebug.position.z = -10
-
 // Apply VR stereo rendering to renderer.
 var effect = new THREE.VREffect(renderer);
 effect.setSize(window.innerWidth, window.innerHeight);
