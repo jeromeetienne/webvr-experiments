@@ -192,7 +192,7 @@ document.querySelector('#resetButton').addEventListener('click', function() {
 	vrDisplay.resetPose();
 });
 
-renderer.domElement.addEventListener('click', function(){
+renderer.domElement.addEventListener('click', function(event){
 	var element = renderer.domElement
 	// check it is the proper click
 	if( event.target !== element )	return

@@ -182,7 +182,7 @@ document.querySelector('#resetButton').addEventListener('click', function() {
 	vrDisplay.resetPose();
 });
 
-renderer.domElement.addEventListener('click', function(){
+renderer.domElement.addEventListener('click', function(event){
 	var element = renderer.domElement
 	// Ask the browser to lock the pointer
 	element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
