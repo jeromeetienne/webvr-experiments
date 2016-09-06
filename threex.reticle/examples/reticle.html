@@ -184,6 +184,9 @@ document.querySelector('#resetButton').addEventListener('click', function() {
 
 renderer.domElement.addEventListener('click', function(event){
 	var element = renderer.domElement
+	// check it is the proper click
+	if( event.target !== element )	return
+	if( vrDisplay.displayName !== "Mouse and Keyboard VRDisplay (webvr-polyfill)")	return	
 	// Ask the browser to lock the pointer
 	element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
 	if ( /Firefox/i.test( navigator.userAgent ) ) {

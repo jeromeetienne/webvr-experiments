@@ -111,13 +111,12 @@ THREEx.Reticle = function(){
 				if( object.geometry === undefined )		continue
 				if( object.geometry.boundingSphere === null )	continue
 				
-				var objectRadius = object.geometry.boundingSphere.radius
 				var distance = raycaster.ray.distanceToPoint(object.position)
 
+				var objectRadius = object.geometry.boundingSphere.radius
 				if( distance > objectRadius + _this.nearDistance )	continue
 				
 				if( distance > minDistance )	continue
-				
 				currentNearingObject = object
 				minDistance = distance
 			}
