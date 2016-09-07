@@ -5,6 +5,8 @@
 
 
 # How to get a better example
+- clear, interactive, educational
+- what need to be explained
 - more tutorials like
 - fun and easy to understand
 - 
