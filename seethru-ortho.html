@@ -21,15 +21,17 @@ html, body {
 }
 
 canvas {
-	position: fixed;
+	position: absolute;
 	top: 0;
 }
 #fullScreenContainer {
-	position: fixed;
+	width: 100%;
+	height: 100%;
+	position: relative;
 }
 
 #buttons {
-	position: fixed;
+	position: absolute;
 	bottom: 0;
 	right: 0;
 	z-index: 1;
@@ -192,7 +194,7 @@ document.querySelector('#resetButton').addEventListener('click', function() {
 	vrDisplay.resetPose();
 });
 
-renderer.domElement.addEventListener('click', function(){
+renderer.domElement.addEventListener('click', function(event){
 	var element = renderer.domElement
 	// check it is the proper click
 	if( event.target !== element )	return
