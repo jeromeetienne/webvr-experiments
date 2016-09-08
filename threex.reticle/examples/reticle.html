@@ -246,57 +246,58 @@ loader.load('../../images/box.png', function onTextureLoaded(texture) {
 		color: 0x01BE00,
 		side: THREE.BackSide
 	});
-	
+
 	var skybox = new THREE.Mesh(geometry, material);
 	scene.add(skybox);
 });
 
+//////////////////////////////////////////////////////////////////////////////
+//		Code Separator
+//////////////////////////////////////////////////////////////////////////////
 
 var clickableObjects = []
 
 // Create 3D objects.
-var geometry = new THREE.PlaneGeometry(0.5, 0.5);
-var material = new THREE.MeshBasicMaterial({
-	map : new THREE.TextureLoader().load( 'images/cute-kitten-quotes-Favim.com-1887494.jpg' )
-});
-material.map.minFilter = THREE.LinearFilter;
-material.map.format = THREE.RGBFormat;
-var mesh = new THREE.Mesh(geometry, material);
-mesh.position.x = 0
+var mesh = createClickableImageObject( 'images/cute-kitten-quotes-Favim.com-1887494.jpg' )
+mesh.position.x =  0
 mesh.position.z = -1.5
 mesh.name = 'plane1'
-clickableObjects.push(mesh)
-scene.add(mesh);
+scene.add( mesh )
 
 // Create 3D objects.
-var geometry = new THREE.PlaneGeometry(0.5, 0.5);
-var material = new THREE.MeshBasicMaterial({
-	map : new THREE.TextureLoader().load( 'images/you_eated_my_cookie.jpg' )
-});
-material.map.minFilter = THREE.LinearFilter;
-material.map.format = THREE.RGBFormat;
-var mesh = new THREE.Mesh(geometry, material);
-mesh.position.x = 0.6
+var mesh = createClickableImageObject( 'images/you_eated_my_cookie.jpg' )
+mesh.position.x = +0.6
 mesh.position.z = -1.5
 mesh.name = 'plane2'
-mesh.lookAt(camera.position)
-clickableObjects.push(mesh)
-scene.add(mesh);
+scene.add( mesh )
 
-// Create 3D objects.
-var geometry = new THREE.PlaneGeometry(0.5, 0.5);
-var material = new THREE.MeshBasicMaterial({
-	map : new THREE.TextureLoader().load( 'images/cute-cat-pictures-with-captions.jpg' )
-});
-material.map.minFilter = THREE.LinearFilter;
-material.map.format = THREE.RGBFormat;
-var mesh = new THREE.Mesh(geometry, material);
+var mesh = createClickableImageObject( 'images/cute-cat-pictures-with-captions.jpg' )
 mesh.position.x = -0.6
 mesh.position.z = -1.5
 mesh.name = 'plane3'
-mesh.lookAt(camera.position)
-clickableObjects.push(mesh)
-scene.add(mesh);
+scene.add( mesh )
+
+function createClickableImageObject(url){
+	// Create 3D objects
+	var geometry = new THREE.PlaneGeometry(0.5, 0.5)
+	var material = new THREE.MeshBasicMaterial({
+		map : new THREE.TextureLoader().load( url )
+	})
+	material.map.minFilter = THREE.LinearFilter
+	material.map.format = THREE.RGBFormat
+
+	var object3d = new THREE.Mesh(geometry, material)
+	object3d.lookAt(camera.position)
+	
+	var material = new THREE.MeshBasicMaterial({
+		wireframe : true,
+	})
+	var borderObject = new THREE.Mesh(geometry, material)
+
+
+	clickableObjects.push(object3d)
+	return object3d
+}
 
 
 var light = new THREE.HemisphereLight();
