@@ -28,7 +28,8 @@ THREEx.ReticleUI = function(reticle){
 	// make the mesh in front of the camera
 	this.update = function(camera){
 		// compute current position with tweening
-		currentPosition.multiplyScalar(0.85).add(tweenPosition.clone().multiplyScalar(0.15))
+		var tweenStrengh = 0.15
+		currentPosition.multiplyScalar(1-tweenStrengh).add(tweenPosition.clone().multiplyScalar(tweenStrengh))
 
 		// constant size nomatter the distance from the camera - to avoid focus issue
 		var scale = currentPosition.length() * Math.sin(THREE.Math.degToRad(camera.fov/2))
@@ -40,7 +41,8 @@ THREEx.ReticleUI = function(reticle){
 		camera.localToWorld(sprite.position)
 		
 		// tween opacity material
-		sprite.material.opacity = sprite.material.opacity*0.8 + tweenOpacity*0.2
+		var tweenStrengh = 0.2
+		sprite.material.opacity = sprite.material.opacity*(1-tweenStrengh)+ tweenOpacity*tweenStrengh
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////

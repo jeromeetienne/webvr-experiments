@@ -8,7 +8,7 @@
 - better looking reticle ala google vr
   - https://www.youtube.com/watch?v=_YTVsLnK-XU example of reticle
   - simply a canvas with a plane ? and me updating it
-  - or a wireframe 
+  - or a wireframe for now
 
 
 # How to get a better example

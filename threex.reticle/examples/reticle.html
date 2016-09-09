@@ -288,12 +288,12 @@ function createClickableImageObject(url){
 	var object3d = new THREE.Mesh(geometry, material)
 	object3d.lookAt(camera.position)
 	
-	var material = new THREE.MeshBasicMaterial({
-		wireframe : true,
-		
+	var material = new THREE.LineBasicMaterial({
+		color: 'red',
+		linewidth : 10,
 	})
-	var borderObject = new THREE.Mesh(geometry, material)
-
+	var borderObject = new THREE.LineSegments(geometry, material)
+	object3d.add(borderObject)
 
 	clickableObjects.push(object3d)
 	return object3d
