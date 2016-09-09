@@ -87,7 +87,8 @@ document.addEventListener('touchmove', function(event) {
 <script>window.Signals = window.signals; delete window.signals</script>
 
 <script src='../threex.reticle.js'></script>
-<script src='../threex.reticleui.js'></script>
+<script src='../threex.reticle-inrangedetector.js'></script>
+<script src='../threex.reticleui-sprite0.js'></script>
 
 <script>
 var onRenderFcts = []
@@ -225,6 +226,10 @@ scene.add(reticleUI.object3d)
 onRenderFcts.push(function(){
 	reticle.update(clickableObjects, camera)
 	reticleUI.update(camera)
+	
+	inRangeDetectors.forEach(function(inRangeDetector){
+		inRangeDetector.update(reticle)
+	})
 })
 
 //////////////////////////////////////////////////////////////////////////////
@@ -255,6 +260,7 @@ loader.load('../../images/box.png', function onTextureLoaded(texture) {
 //////////////////////////////////////////////////////////////////////////////
 
 var clickableObjects = []
+var inRangeDetectors = []
 
 // Create 3D objects.
 var mesh = createClickableImageObject( 'images/cute-kitten-quotes-Favim.com-1887494.jpg' )
@@ -287,16 +293,34 @@ function createClickableImageObject(url){
 
 	var object3d = new THREE.Mesh(geometry, material)
 	object3d.lookAt(camera.position)
-	
-	var material = new THREE.LineBasicMaterial({
-		color: 'red',
-		linewidth : 10,
-	})
-	var borderObject = new THREE.LineSegments(geometry, material)
-	borderObject.name = 'inRangeBorder'
-	object3d.add(borderObject)
-
 	clickableObjects.push(object3d)
+	
+	
+	var material = new THREE.MeshBasicMaterial({
+		map : new THREE.TextureLoader().load( 'images/glass-texture.jpg' ),
+		opacity: 0.6,
+		transparent: true
+	})
+	material.map.minFilter = THREE.LinearFilter
+	material.map.format = THREE.RGBFormat
+	var inRangeFeedbackObject = new THREE.Mesh(geometry, material)
+	inRangeFeedbackObject.name = 'inRangeFeedback'
+	inRangeFeedbackObject.visible = false
+	object3d.add(inRangeFeedbackObject)
+	
+	
+	var inRangeDetector = new THREEx.ReticleInRangeDetector(object3d)
+	inRangeDetectors.push(inRangeDetector)
+	inRangeDetector.signals.start.add(function(){
+		console.log('inRangeDetector.signals.start')
+		inRangeFeedbackObject.visible = true
+	})
+	inRangeDetector.signals.stop.add(function(){
+		console.log('inRangeDetector.signals.stop')
+		inRangeFeedbackObject.visible = false
+	})
+
+	// return the object3d root
 	return object3d
 }
 
@@ -315,18 +339,18 @@ reticle.signals.click.add(function(object3d){
 	object3d.material.color.setHex(Math.random()*0xffffff);
 })
 	
-var inRangeObject = null
-reticle.signals.inRangeStart.add(function(object3d){
-	console.assert(inRangeObject === null)
-	inRangeObject = object3d
-	inRangeObject.scale.multiplyScalar(1.05)
-})
-
-reticle.signals.inRangeStop.add(function(){
-	console.assert(inRangeObject !== null)
-	inRangeObject.scale.multiplyScalar(1/1.05)
-	inRangeObject = null
-})
+// var inRangeObject = null
+// reticle.signals.inRangeStart.add(function(object3d){
+// 	inRangeObject = object3d
+// 	var inRangeFeedbackObject = object3d.getObjectByName('inRangeFeedback')
+// 	inRangeFeedbackObject.visible = true
+// })
+// 
+// reticle.signals.inRangeStop.add(function(){
+// 	console.assert(inRangeObject !== null)
+// 	var inRangeFeedbackObject = inRangeObject.getObjectByName('inRangeFeedback')
+// 	inRangeFeedbackObject.visible = false
+// })
 
 
 </script></html>

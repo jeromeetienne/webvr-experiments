@@ -24,7 +24,7 @@ THREEx.Reticle = function(){
 	var hoveringObject = null
 
 	// parameters and states for inRange
-	this.nearDistance = 0.2
+	this.inRangeDistance = 0.2
 	var inRangeObject = null
 	var isInRange = false
 
@@ -33,12 +33,12 @@ THREEx.Reticle = function(){
 	//////////////////////////////////////////////////////////////////////////////
 	var mouse = new THREE.Vector2(0,0)
 	var raycaster = new THREE.Raycaster();
+	this._raycaster = raycaster
 	this.update = function(objects, camera){
 		raycaster.setFromCamera( mouse, camera );
 		
 		updateHoveringAndClick(objects)
-		updateInRange(objects)
-		return
+		updateInRange(objects, camera)
 	}
 
 	function updateHoveringAndClick(objects){
@@ -102,7 +102,7 @@ THREEx.Reticle = function(){
 	//		honor inRange signals
 	//		FIXME it should only notify the closest
 	//////////////////////////////////////////////////////////////////////////////
-	function updateInRange(objects){
+	function updateInRange(objects, camera){
 		// find currentInRangeObject
 		var currentInRangeObject = null
 		var minDistance = Infinity;
@@ -111,13 +111,13 @@ THREEx.Reticle = function(){
 			if( object.geometry === undefined )		continue
 			if( object.geometry.boundingSphere === null )	continue
 			
-			var distance = raycaster.ray.distanceToPoint(object.position)
-			var objectRadius = object.geometry.boundingSphere.radius
-			if( distance > objectRadius + _this.nearDistance )	continue
+			var distanceToPoint = raycaster.ray.distanceToPoint(object.position)
+			var distanceToSphere = distanceToPoint - object.geometry.boundingSphere.radius
+			if( distanceToSphere > _this.inRangeDistance )	continue
 			
-			if( distance > minDistance )	continue
+			if( distanceToSphere > minDistance )	continue
 			currentInRangeObject = object
-			minDistance = distance
+			minDistance = distanceToSphere
 		}
 
 		var wasInRange = isInRange
