@@ -3,7 +3,7 @@
 It implements a modern reticle
 - handle click, hover
 - implement auto focus
-- implement nearing
+- implement inRange
 
 
 

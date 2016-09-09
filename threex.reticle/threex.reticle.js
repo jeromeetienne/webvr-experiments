@@ -14,8 +14,8 @@ THREEx.Reticle = function(){
 		hoverProgress : new Signals.Signal(),
 		hoverStop : new Signals.Signal(),
 
-		nearingStart : new Signals.Signal(),
-		nearingStop : new Signals.Signal(),
+		inRangeStart : new Signals.Signal(),
+		inRangeStop : new Signals.Signal(),
 	}
 
 	// parameters and states for hover
@@ -23,10 +23,10 @@ THREEx.Reticle = function(){
 	var hoverStartedAt = null
 	var hoveringObject = null
 
-	// parameters and states for nearing
+	// parameters and states for inRange
 	this.nearDistance = 0.2
-	var nearingObject = null
-	var isNearing = false
+	var inRangeObject = null
+	var isInRange = false
 
 	//////////////////////////////////////////////////////////////////////////////
 	//		Handle hover/click state automata
@@ -37,7 +37,7 @@ THREEx.Reticle = function(){
 		raycaster.setFromCamera( mouse, camera );
 		
 		updateHoveringAndClick(objects)
-		updateNearing(objects)
+		updateInRange(objects)
 		return
 	}
 
@@ -99,12 +99,12 @@ THREEx.Reticle = function(){
 	}
 
 	//////////////////////////////////////////////////////////////////////////////
-	//		honor nearing signals
+	//		honor inRange signals
 	//		FIXME it should only notify the closest
 	//////////////////////////////////////////////////////////////////////////////
-	function updateNearing(objects){
-		// find currentNearingObject
-		var currentNearingObject = null
+	function updateInRange(objects){
+		// find currentInRangeObject
+		var currentInRangeObject = null
 		var minDistance = Infinity;
 		for(var i = 0; i < objects.length; i++){
 			var object = objects[i]
@@ -116,28 +116,28 @@ THREEx.Reticle = function(){
 			if( distance > objectRadius + _this.nearDistance )	continue
 			
 			if( distance > minDistance )	continue
-			currentNearingObject = object
+			currentInRangeObject = object
 			minDistance = distance
 		}
 
-		var wasNearing = isNearing
+		var wasInRange = isInRange
 
-		if( wasNearing && currentNearingObject && currentNearingObject !== nearingObject ){
-			nearingObject = currentNearingObject
-			_this.signals.nearingStop.dispatch()
-			_this.signals.nearingStart.dispatch(currentNearingObject)				
+		if( wasInRange && currentInRangeObject && currentInRangeObject !== inRangeObject ){
+			inRangeObject = currentInRangeObject
+			_this.signals.inRangeStop.dispatch()
+			_this.signals.inRangeStart.dispatch(currentInRangeObject)				
 		}
 
-		if( wasNearing === false && currentNearingObject ){
-			nearingObject = currentNearingObject
-			_this.signals.nearingStart.dispatch(currentNearingObject)
-			isNearing = true
+		if( wasInRange === false && currentInRangeObject ){
+			inRangeObject = currentInRangeObject
+			_this.signals.inRangeStart.dispatch(currentInRangeObject)
+			isInRange = true
 		}
 
-		if( wasNearing && currentNearingObject === null ){
-			nearingObject = null
-			_this.signals.nearingStop.dispatch()
-			isNearing = false
+		if( wasInRange && currentInRangeObject === null ){
+			inRangeObject = null
+			_this.signals.inRangeStop.dispatch()
+			isInRange = false
 		}
 	}
 }

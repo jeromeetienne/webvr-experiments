@@ -293,6 +293,7 @@ function createClickableImageObject(url){
 		linewidth : 10,
 	})
 	var borderObject = new THREE.LineSegments(geometry, material)
+	borderObject.name = 'inRangeBorder'
 	object3d.add(borderObject)
 
 	clickableObjects.push(object3d)
@@ -314,17 +315,17 @@ reticle.signals.click.add(function(object3d){
 	object3d.material.color.setHex(Math.random()*0xffffff);
 })
 	
-var nearingObject = null
-reticle.signals.nearingStart.add(function(object3d){
-	console.assert(nearingObject === null)
-	nearingObject = object3d
-	nearingObject.scale.multiplyScalar(1.05)
+var inRangeObject = null
+reticle.signals.inRangeStart.add(function(object3d){
+	console.assert(inRangeObject === null)
+	inRangeObject = object3d
+	inRangeObject.scale.multiplyScalar(1.05)
 })
 
-reticle.signals.nearingStop.add(function(){
-	console.assert(nearingObject !== null)
-	nearingObject.scale.multiplyScalar(1/1.05)
-	nearingObject = null
+reticle.signals.inRangeStop.add(function(){
+	console.assert(inRangeObject !== null)
+	inRangeObject.scale.multiplyScalar(1/1.05)
+	inRangeObject = null
 })
 
 
