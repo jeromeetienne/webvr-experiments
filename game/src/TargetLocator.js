@@ -34,7 +34,7 @@ Appx.TargetLocator = function(app){
 
 		// project targetObject3d on near camera plane
 		var projectedPoint = plane.projectPoint(position)
-		console.log(projectedPoint)
+		// console.log(projectedPoint)
 
 		// compute the angle toward the target from the center of the camera plane
 		var angle = Math.atan2(projectedPoint.y, projectedPoint.x)
