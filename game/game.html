@@ -70,11 +70,13 @@ document.addEventListener('touchmove', function(event) {
 <script src="src/Score.js"></script>
 <script src="src/MiniMap.js"></script>
 <script src="src/Enemy.js"></script>
+<script src="src/TargetLocator.js"></script>
 
 <script src="../threex.reticle/threex.reticle.js"></script>
 <script src="../threex.reticle/threex.reticleui-sprite0.js"></script>
 <script>
 
+THREEx.ReticleUI.baseURL = '../threex.reticle/'
 var app = new Appx.App()
 
 //////////////////////////////////////////////////////////////////////////////
@@ -310,6 +312,25 @@ function enterFullscreen (element) {
 	})
 })()
 
+
+//////////////////////////////////////////////////////////////////////////////
+//              Handle TargetLocator
+//////////////////////////////////////////////////////////////////////////////
+
+;(function(){
+	var targetLocator = new Appx.TargetLocator(app)
+	scene.add(targetLocator.object3d)
+window.targetLocator = targetLocator
+	var geometry = new THREE.SphereGeometry(0.5);
+	var material = new THREE.MeshNormalMaterial();
+	var targetObject3d = new THREE.Mesh(geometry, material)
+	scene.add(targetObject3d)
+	targetObject3d.position.set(-2,0,-5)
+	
+	app.signals.update.add(function(){
+		targetLocator.update(targetObject3d)
+	})
+})()
 //////////////////////////////////////////////////////////////////////////////
 //              Handle reticles
 //////////////////////////////////////////////////////////////////////////////
