@@ -5,3 +5,10 @@
   - keep target with the smallest angle
   - convert this quaternion difference into an angle for screen
   - display an arrow for that
+- Another solution:
+  - project target position on camera near plane
+  - get 2d angle from projected position and camera
+  - make the target locator turn to this angle
+  - THREE.Plane of camera near Plane (http://threejs.org/docs/index.html?q=plane#Reference/Math/Plane)
+  - then plane.projectPoint(targetPosition)
+  - then Math.atan2(projectedPoint)
