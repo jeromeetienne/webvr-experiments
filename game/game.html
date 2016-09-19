@@ -320,15 +320,21 @@ function enterFullscreen (element) {
 ;(function(){
 	var targetLocator = new Appx.TargetLocator(app)
 	scene.add(targetLocator.object3d)
-window.targetLocator = targetLocator
-	var geometry = new THREE.SphereGeometry(0.5);
-	var material = new THREE.MeshNormalMaterial();
-	var targetObject3d = new THREE.Mesh(geometry, material)
-	scene.add(targetObject3d)
-	targetObject3d.position.set(-2,0,-5)
 	
 	app.signals.update.add(function(){
-		targetLocator.update(targetObject3d)
+		// find closest enemy
+		var closestEnemy = null
+		var closestDistance = Infinity
+		app.enemies.forEach(function(enemy){
+			var distance = enemy.object3d.position.distanceTo(app.camera.position)
+			if( distance > closestDistance )	return
+			closestEnemy = enemy
+			closestDistance = distance
+		})
+		if( closestEnemy === null )	return
+		
+		// update targetLocator with the closestEnemy
+		targetLocator.update(closestEnemy.object3d)
 	})
 })()
 //////////////////////////////////////////////////////////////////////////////

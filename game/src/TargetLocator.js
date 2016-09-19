@@ -55,7 +55,7 @@ Appx.TargetLocator = function(app){
 		plane.applyMatrix4(camera.matrixWorld)
 		// compute the ray
 		var isStereo = vrDisplay.isPresenting === true ? true : false
-		var mouse = new THREE.Vector2(0.8/(isStereo ? 2 : 1),0.8)
+		var mouse = new THREE.Vector2(0/(isStereo ? 2 : 1),0.8)
 		var raycaster = new THREE.Raycaster()
 		raycaster.setFromCamera(mouse, camera)
 		// compute intersection
