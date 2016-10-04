@@ -12,3 +12,7 @@
   - THREE.Plane of camera near Plane (http://threejs.org/docs/index.html?q=plane#Reference/Math/Plane)
   - then plane.projectPoint(targetPosition)
   - then Math.atan2(projectedPoint)
+
+# Possible idea
+- be a guy in the turret of the falcon millenium
+- while attacking the tunnel of the death star
