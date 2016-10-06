@@ -4,14 +4,13 @@ var Appx = Appx || {}
 Appx.TargetLocator = function(app){
 	var _this = this;
 
-
 	var texture = new THREE.TextureLoader().load( THREEx.ReticleUI.baseURL+"images/sprite0.png" );
-	var material = new THREE.SpriteMaterial( {
+	var material = new THREE.SpriteMaterial({
 		map: texture, 
 		color: 0xffffff, 
 		depthTest: false
-	} );
-	var sprite = new THREE.Sprite( material )	
+	})
+	var sprite = new THREE.Sprite( material )
 	
 	this.object3d = sprite
 	
@@ -20,6 +19,7 @@ Appx.TargetLocator = function(app){
 
 		updateSpritePosition(app.camera)		
 	}
+	return
 
 	function updateTargetLocation(targetObject3d){
 		// compute the near camera plane as THREE.Plane
