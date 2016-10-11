@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang='en'><head>
+<title>Web VR Boilerplate</title>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no'>
+<meta name='mobile-web-app-capable' content='yes'>
+<meta name='apple-mobile-web-app-capable' content='yes' />
+<meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
+<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.6.2/css/font-awesome.min.css'>
+<style>
+html, body {
+	width: 100%;
+	height: 100%;
+	background-color: #000;
+	color: #fff;
+	margin: 0px;
+	padding: 0;
+	overflow: hidden;
+}
+
+canvas {
+	position: absolute;
+	top: 0;
+}
+#fullScreenContainer {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+#buttons {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	z-index: 1;
+	/*to prevent mouse selection of the button*/
+	user-select: none;
+	-webkit-user-select: none;
+}
+#buttons i {
+	color: #ccc;
+	font-size: 150%;
+	margin-bottom: 0.4em;
+	margin-right: 0.4em;
+}
+#buttons i:hover {
+	color: #fff;
+	text-shadow: 0px 0px 5px lightblue, 0px 0px 10px lightblue;
+	cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+	<div id='fullScreenContainer'>
+		<div id='buttons'>
+			<i class='fa fa-arrows-alt' id='fullscreenButton'></i>
+			<i class='fa fa-eye' id='vrButton'></i>
+			<i class='fa fa-star' id='resetButton' title='reset position'></i>
+		</div>
+	</div>
+</body>
+
+<script>
+WebVRConfig = {
+	BUFFER_SCALE: 0.5,
+};
+
+document.addEventListener('touchmove', function(event) {
+	event.preventDefault();
+});
+</script>
+
+<!-- three.js library -->
+<script src='../vendor/three.js/build/three.js'></script>
+
+<!-- VRControls.js applies the WebVR transformations to a three.js camera object. -->
+<script src='../vendor/three.js/examples/js/controls/VRControls.js'></script>
+
+<!-- VREffect.js handles stereo camera setup and rendering.  -->
+<script src='../vendor/three.js/examples/js/effects/VREffect.js'></script>
+<!-- <script src='../vendor/three.js/examples/js/effects/VREffect-fromweb.js'></script> -->
+
+<!-- A polyfill for the WebVR API.  -->
+<script src='../vendor/webvr-polyfill.js'></script>
+
+
+<script>
+var onRenderFcts = []
+
+// Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
+// Only enable it if you actually need to.
+var renderer = new THREE.WebGLRenderer({antialias: false});
+renderer.setPixelRatio(Math.floor(window.devicePixelRatio));
+
+// Append the canvas element created by the renderer to fullScreenContainer
+document.querySelector('#fullScreenContainer').appendChild(renderer.domElement);
+
+// Create a three.js scene.
+var scene = new THREE.Scene();
+
+// Create a three.js camera.
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+
+// Apply VR headset positional data to camera.
+var controls = new THREE.VRControls(camera);
+
+// Apply VR stereo rendering to renderer.
+var effect = new THREE.VREffect(renderer);
+effect.setSize(window.innerWidth, window.innerHeight);
+
+// Get the VRDisplay and save it for later.
+var vrDisplay = null;
+navigator.getVRDisplays().then(function(displays) {
+	if (displays.length > 0) {
+		vrDisplay = displays[0];
+	}
+	
+	if( vrDisplay !== null ){
+		if( vrDisplay.capabilities.canPresent !== true ){
+			document.querySelector('#vrButton').style.display = 'none'
+		}
+	}
+});
+
+// Request animation frame loop function
+var lastRender = 0;
+function animate(timestamp) {
+	var delta = Math.min(timestamp - lastRender, 500);
+	lastRender = timestamp;
+	
+	// Update VR headset position and apply to camera.
+	controls.update();
+
+	// call each function for the rendering
+	onRenderFcts.forEach(function(onRenderFct){
+		onRenderFct(delta)
+	})
+	
+	// Render the scene.
+	effect.render(scene, camera);
+	
+	// Keep looping.
+	requestAnimationFrame(animate);
+}
+
+// Kick off animation loop.
+requestAnimationFrame(animate);
+
+//////////////////////////////////////////////////////////////////////////////////
+//		Comments
+//////////////////////////////////////////////////////////////////////////////////
+
+function onResize() {
+	effect.setSize(window.innerWidth, window.innerHeight);
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+}
+
+// Resize the WebGL canvas when we resize and also when we change modes.
+window.addEventListener('resize', onResize);
+window.addEventListener('vrdisplaypresentchange', function onVRDisplayPresentChange() {
+	console.log('onVRDisplayPresentChange');
+	onResize();
+});
+
+// Button click handlers.
+document.querySelector('#fullscreenButton').addEventListener('click', function() {
+	var domElement = document.querySelector('#fullScreenContainer')
+	// var domElement = document.querySelector('canvas')
+	enterFullscreen(domElement);
+});
+document.querySelector('#vrButton').addEventListener('click', function() {
+	vrDisplay.requestPresent([{source: renderer.domElement}]);
+});
+document.querySelector('#resetButton').addEventListener('click', function() {
+	vrDisplay.resetPose();
+});
+
+renderer.domElement.addEventListener('click', function(event){
+	var element = renderer.domElement
+	// check it is the proper click
+	if( event.target !== element )	return
+	if( vrDisplay.displayName !== "Mouse and Keyboard VRDisplay (webvr-polyfill)")	return	
+	// Ask the browser to lock the pointer
+	element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+	if ( /Firefox/i.test( navigator.userAgent ) ) {
+		var fullscreenchange = function ( event ) {
+			if ( document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element ) {
+				document.removeEventListener( 'fullscreenchange', fullscreenchange );
+				document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
+				element.requestPointerLock();
+			}
+		};
+		document.addEventListener( 'fullscreenchange', fullscreenchange, false );
+		document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
+		element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
+		element.requestFullscreen();
+	} else {
+		element.requestPointerLock();
+	}
+})
+
+function enterFullscreen (element) {
+	if (element.requestFullscreen) {
+		element.requestFullscreen();
+	} else if (element.mozRequestFullScreen) {
+		element.mozRequestFullScreen();
+	} else if (element.webkitRequestFullscreen) {
+		element.webkitRequestFullscreen();
+	} else if (element.msRequestFullscreen) {
+		element.msRequestFullscreen();
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//		Code Separator
+//////////////////////////////////////////////////////////////////////////////
+
+// Add a repeating grid as a skybox.
+var boxWidth = 5;
+var loader = new THREE.TextureLoader();
+loader.load('../images/box.png', function onTextureLoaded(texture) {
+	texture.wrapS = THREE.RepeatWrapping;
+	texture.wrapT = THREE.RepeatWrapping;
+	texture.repeat.set(boxWidth, boxWidth);
+	
+	var geometry = new THREE.BoxGeometry(boxWidth, boxWidth, boxWidth);
+	var material = new THREE.MeshBasicMaterial({
+		map: texture,
+		color: 0x01BE00,
+		side: THREE.BackSide
+	});
+	
+	var skybox = new THREE.Mesh(geometry, material);
+	scene.add(skybox);
+});
+
+// Create 3D objects.
+var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+var material = new THREE.MeshNormalMaterial();
+var cube = new THREE.Mesh(geometry, material);
+cube.position.z = -1
+
+// Add cube mesh to your three.js scene
+scene.add(cube);
+
+// Position cube mesh
+onRenderFcts.push(function(delta){
+	cube.rotation.y += delta * 0.0006;
+})
+
+//////////////////////////////////////////////////////////////////////////////
+//		Code Separator
+//////////////////////////////////////////////////////////////////////////////
+
+
+var firstQuaternion = null
+
+;(function animate(){
+	requestAnimationFrame(animate)
+	
+	if( firstQuaternion === null ){
+		firstQuaternion = camera.quaternion.clone()
+	}
+	
+	var currentQuaternion = camera.quaternion.clone()
+	
+	
+	// console.log('current quat', currentQuaternion)
+	// console.log('angle', (quaternionAngle(currentQuaternion, firstQuaternion) % Math.PI)/Math.PI*180)
+	
+	var angle = quaternionAngle(currentQuaternion, firstQuaternion)
+	if( angle > Math.PI )	angle = Math.PI*2.0-angle
+	
+	var angleDeg = THREE.Math.radToDeg(angle)
+	console.log('angleDeg', angleDeg)
+	
+	var isVisible = angleDeg < 75/2 ? true : false
+	console.log('isVisible', isVisible)
+
+
+	// http://www.gamedev.net/topic/613685-find-angle-between-quaternion-a-and-b/
+	// to push back in three.js
+	function quaternionAngle(q1, q2){
+		var inv = q1.clone().inverse()
+		var res = q2.clone().multiply(inv);
+		return Math.acos(res.w) * 2.0;
+	}
+})()
+
+</script></html>
