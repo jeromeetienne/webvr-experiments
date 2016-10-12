@@ -286,6 +286,7 @@ var firstQuaternion = null
 		var inv = q1.clone().inverse()
 		var res = q2.clone().multiply(inv);
 		var angle = Math.acos(res.w) * 2.0;
+		console.assert(isNaN(angle) === false)
 		if( isNaN(angle) === true )	return 0
 		if( angle > Math.PI )	angle = Math.PI*2.0-angle
 		var angleDeg = THREE.Math.radToDeg(angle)
