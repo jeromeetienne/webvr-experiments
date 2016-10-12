@@ -100,7 +100,7 @@ document.querySelector('#fullScreenContainer').appendChild(renderer.domElement);
 var scene = new THREE.Scene();
 
 // Create a three.js camera.
-var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
 
 // Apply VR headset positional data to camera.
 var controls = new THREE.VRControls(camera);
@@ -239,11 +239,11 @@ loader.load('../images/box.png', function onTextureLoaded(texture) {
 // Create 3D objects.
 var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
 var material = new THREE.MeshNormalMaterial();
-var uiObject = new THREE.Mesh(geometry, material);
-uiObject.position.z = -1
+var cube = new THREE.Mesh(geometry, material);
+cube.position.z = -1
 
-// Add uiObject mesh to your three.js scene
-scene.add(uiObject);
+// Add cube mesh to your three.js scene
+scene.add(cube);
 
 //////////////////////////////////////////////////////////////////////////////
 //		Code Separator
@@ -265,23 +265,19 @@ var firstQuaternion = null
 	// console.log('current quat', currentQuaternion)
 	// console.log('angle', (quaternionAngle(currentQuaternion, firstQuaternion) % Math.PI)/Math.PI*180)
 	
-	var deltaDeg = quaternionAngleDeg(currentQuaternion, firstQuaternion)
-	// console.log('deltaDeg', deltaDeg)
-
-	var fov = camera.fov
-	// var fov = cameraFovX(camera)
-	console.log('fovx', cameraFovX(camera), 'fovy', camera.fov)
-	// fov = 1
-	var isVisible = deltaDeg < fov/2 ? true : false
-	console.log('isVisible', isVisible, deltaDeg)
+	var angleDeg = quaternionAngleDeg(currentQuaternion, firstQuaternion)
+	// console.log('angleDeg', angleDeg)
+	
+	var isVisible = angleDeg < camera.fov/2 ? true : false
+	console.log('isVisible', isVisible)
 	if( isVisible === false ){
-		firstQuaternion.slerp(currentQuaternion, 0.015)
-		updateUIObjectPoseWithQuaternion(uiObject, firstQuaternion)
+		firstQuaternion.slerp(currentQuaternion, 0.01)
+		updateCubePoseWithQuaternion(firstQuaternion)
 	}
 
 
 	// http://www.gamedev.net/topic/613685-find-angle-between-quaternion-a-and-b/
-	// to push back in three.js™
+	// to push back in three.js
 	function quaternionAngleDeg(q1, q2){
 		var inv = q1.clone().inverse()
 		var res = q2.clone().multiply(inv);
@@ -294,25 +290,31 @@ var firstQuaternion = null
 	
 	function cameraFovX(camera){
 		var fovx = 2 * Math.atan(camera.aspect * Math.tan(camera.fov*THREE.Math.DEG2RAD/2)) * THREE.Math.RAD2DEG
+		// console.log('fov', fovx, fovy)
 		return fovx
 	}
 })()
 
 window.addEventListener('keypress', function(event){
-	if( event.key !== 'r' )	return 
+	if( event.key !== 'm' )	return 
 	
 	firstQuaternion = camera.quaternion.clone()
 	
-	updateUIObjectPoseWithQuaternion(uiObject, firstQuaternion)
+	updateCubePoseWithQuaternion(firstQuaternion)
 })
 
-function updateUIObjectPoseWithQuaternion(object3d, quaternion){
-	object3d.matrixAutoUpdate = false	
-	
-	var poseMatrix = new THREE.Matrix4().makeRotationFromQuaternion(quaternion)
+function updateCubePoseWithQuaternion(){
+	cube.matrixAutoUpdate = false	
+	var poseMatrix = new THREE.Matrix4().makeRotationFromQuaternion(firstQuaternion)
         var displaceMatrix = new THREE.Matrix4().makeTranslation( 0, 0, -1 )
         poseMatrix.multiply(displaceMatrix)
-	object3d.matrix.copy(poseMatrix)	
+	cube.matrix.copy(poseMatrix)	
 }
+
+window.addEventListener('keypress', function(event){
+	// console.log('key', event.key)
+	if( event.key !== 'r' ) return
+	firstQuaternion = camera.quaternion.clone()
+})
 
 </script></html>
