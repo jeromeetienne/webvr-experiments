@@ -37,8 +37,7 @@ THREEx.prototype.update = function(camera){
                 console.assert(this._state === 'idle' )
                 if( this._uiInFOV === false ){
                         this._gotoState('uiOutOfFov')
-                }
-                
+                }               
         }
 };
 
