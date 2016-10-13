@@ -2,7 +2,7 @@ var THREEx = THREEx || {}
 
 THREEx.LooseFollowControls = function(object3d){
         this.object3d = object3d
-        this._state = 'idle'
+        this._state = 'Idle'
 }
 
 /**
@@ -11,32 +11,45 @@ THREEx.LooseFollowControls = function(object3d){
  */
 
 THREEx.LooseFollowControls.states = [
-        'idle',
-        'uiOutOfFov',
-        'waitForStableCamera',
-        'looseFollowing'
+        'Idle',
+        'UiOutOfFov',
+        'WaitStableCamera',
+        'LooseFollowing'
 ];
 
 
 THREEx.prototype.update = function(camera){
         
         
-        if( this._state === 'idle' )    updateIdleState()
-        else if( this._state === 'uiOutOfFov' ) updateUiOutOfFOV
-        
+        if( this._state === 'Idle' ){
+                updateIdleState()                
+        }else if( this._state === 'UiOutOfFov' ){
+                updateUiOutOfFOV()                
+        }else if( this._state === 'WaitStableCamera' ){
+                updateWaitStableCamera()                
+        }else if( this._state === 'LooseFollowing' ){
+                updateLooseFollowing()                
+        }else{
+                console.assert('unknown state', this._state)
+        }
         return
+
+        function updateWaitStableCamera(){
+        }
+        function updateLooseFollowing(){
+        }
         function updateUiOutOfFOV(){
-                console.assert(this._state === 'uiOutOfFov' )
+                console.assert(this._state === 'UiOutOfFov' )
                 if( this._uiInFOV === true ){
-                        this._gotoState('idle')
+                        this._gotoState('Idle')
                 }else if( this._cameraAngularSpeed > this._maxCameraAngularSpeed ){
-                        this._gotoState('waitForStableCamera')    
+                        this._gotoState('WaitStableCamera')    
                 }
         }
         function updateIdleState(){
-                console.assert(this._state === 'idle' )
+                console.assert(this._state === 'Idle' )
                 if( this._uiInFOV === false ){
-                        this._gotoState('uiOutOfFov')
+                        this._gotoState('UiOutOfFov')
                 }               
         }
 };
@@ -45,12 +58,14 @@ THREEx.prototype._gotoState = function(newState){
         // TODO sanity check on the states
         /
         // leave states
-        if( currentState === 'idle' ){
-                
+        if( currentState === 'Idle' ){
+                ;(function(){
+                        
+                })()
         }
         
         // goto new state
-        if( currentState === 'idle' ){
+        if( currentState === 'Idle' ){
                 
         }
 };
