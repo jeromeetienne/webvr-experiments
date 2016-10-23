@@ -21,15 +21,15 @@ THREEx.ReticleUI = function(reticle){
 	sprite.position.z = -2
 	this.object3d = sprite
 	
-	var tweenOpacity = sprite.material.opacity
+	var targetOpacity = sprite.material.opacity
 	var currentPosition = new THREE.Vector3(0,0,-2)
-	var tweenPosition = new THREE.Vector3(0,0,-2)
+	var targetPosition = new THREE.Vector3(0,0,-2)
 	
 	// make the mesh in front of the camera
 	this.update = function(camera){
 		// compute current position with tweening
 		var tweenStrengh = 0.15
-		currentPosition.multiplyScalar(1-tweenStrengh).add(tweenPosition.clone().multiplyScalar(tweenStrengh))
+		currentPosition.multiplyScalar(1-tweenStrengh).add(targetPosition.clone().multiplyScalar(tweenStrengh))
 
 		// constant size nomatter the distance from the camera - to avoid focus issue
 		var scale = currentPosition.length() * Math.sin(THREE.Math.degToRad(camera.fov/2))
@@ -42,7 +42,7 @@ THREEx.ReticleUI = function(reticle){
 		
 		// tween opacity material
 		var tweenStrengh = 0.2
-		sprite.material.opacity = sprite.material.opacity*(1-tweenStrengh)+ tweenOpacity*tweenStrengh
+		sprite.material.opacity = sprite.material.opacity*(1-tweenStrengh)+ targetOpacity*tweenStrengh
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////
@@ -55,22 +55,22 @@ THREEx.ReticleUI = function(reticle){
 	})
 
 	reticle.signals.hoverStart.add(function(object3d){
-		tweenOpacity = 0.8
+		targetOpacity = 0.8
 	})
 	
 	reticle.signals.hoverStop.add(function(){
 		sprite.material.rotation = 0
-		tweenOpacity = 0.5
+		targetOpacity = 0.5
 	})
 	
 	reticle.signals.inRangeStart.add(function(object3d){
-		tweenOpacity = 0.5
-		tweenPosition.z = -(object3d.position.length() - object3d.geometry.boundingSphere.radius - 0.1)	
+		targetOpacity = 0.5
+		targetPosition.z = -(object3d.position.length() - object3d.geometry.boundingSphere.radius - 0.1)	
 	})
 	
 	reticle.signals.inRangeStop.add(function(){
-		tweenOpacity = 0.2
-		tweenPosition.z = -2
+		targetOpacity = 0.2
+		targetPosition.z = -2
 	})
 }
 
