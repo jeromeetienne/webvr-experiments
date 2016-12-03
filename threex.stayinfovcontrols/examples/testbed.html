@@ -251,8 +251,8 @@ scene.add(uiObject);
 
 var uiQuaternion = new THREE.Quaternion()
 // uiQuaternion.copy(camera.quaternion)
-
-var euler = new THREE.Euler().set(20*THREE.Math.DEG2RAD, 0*THREE.Math.DEG2RAD, 0, 'YXZ')
+// 
+var euler = new THREE.Euler().set(0*THREE.Math.DEG2RAD, 20*THREE.Math.DEG2RAD, 0, 'YXZ')
 uiQuaternion.multiply(new THREE.Quaternion().setFromEuler(euler))
 
 updateUIObjectPoseWithQuaternion(uiObject, uiQuaternion)
@@ -272,25 +272,22 @@ onRenderFcts.push(function(){
 	//		compute if it is contained in fov
 	//////////////////////////////////////////////////////////////////////////////
 	// var euler = new THREE.Euler().setFromQuaternion(gazeQuaternion, 'YXZ')
-	// // console.log('euler.y', euler.y*THREE.Math.RAD2DEG)
+	// console.log('euler.y', euler.y*THREE.Math.RAD2DEG)
 	// var isVisibleX = Math.abs(euler.y) < cameraHalfFovX*THREE.Math.DEG2RAD
 	// // 
 	// // var euler = new THREE.Euler().setFromQuaternion(gazeQuaternion, 'YXZ')
-	// // console.log('euler.x', euler.x*THREE.Math.RAD2DEG)
+	// console.log('euler.x', euler.x*THREE.Math.RAD2DEG)
 	// var isVisibleY = Math.abs(euler.x) < cameraHalfFovY*THREE.Math.DEG2RAD
 	// // 
 	// console.log('isVisibleX =', isVisibleX, 'isVisibleY =', isVisibleY)
 
-	// var eulerY = euler.y
-	// var eulerX = euler.x
-	// console.log('eulerY =', (eulerY*THREE.Math.RAD2DEG).toFixed(3), 'eulerX =', (eulerX*THREE.Math.RAD2DEG).toFixed(3))
+	// console.log('euler.y =', (euler.y*THREE.Math.RAD2DEG).toFixed(3), 'euler.x =', (euler.x*THREE.Math.RAD2DEG).toFixed(3))
 
 	//////////////////////////////////////////////////////////////////////////////
 	//		how to place an object in fov
 	//////////////////////////////////////////////////////////////////////////////
 	// var quaternion = gazeQuaternion.clone()
 	// 
-	// // var euler = new THREE.Euler().set(cameraHalfFovY*THREE.Math.DEG2RAD, cameraHalfFovX*THREE.Math.DEG2RAD, 0, 'XYZ')
 	// var euler = new THREE.Euler().set(cameraHalfFovY*THREE.Math.DEG2RAD, cameraHalfFovX*THREE.Math.DEG2RAD, 0, 'XYZ')
 	// quaternion.multiply(new THREE.Quaternion().setFromEuler(euler))
 	// 	
@@ -301,31 +298,43 @@ onRenderFcts.push(function(){
 	//////////////////////////////////////////////////////////////////////////////
 	
 	var gazeToUIQuaternion = camera.quaternion.clone()
-		.multiply(uiQuaternion.clone().inverse())
-		// .multiply(uiQuaternion.clone().inverse())
-	
+		.multiply( uiQuaternion.clone().inverse() )
+		.inverse()
 	var euler = new THREE.Euler().setFromQuaternion(gazeToUIQuaternion, 'YXZ')
-	console.log('eulerY =', (euler.y*THREE.Math.RAD2DEG).toFixed(3), 'euler.x =', (euler.x*THREE.Math.RAD2DEG).toFixed(3))
-	// console.log('euler.y', euler.y*THREE.Math.RAD2DEG)
+	// console.log('euler.y =', (euler.y*THREE.Math.RAD2DEG).toFixed(3), 'euler.x =', (euler.x*THREE.Math.RAD2DEG).toFixed(3))
+	euler.x = Math.min(euler.x, +cameraHalfFovX/2*THREE.Math.DEG2RAD)
+	euler.x = Math.max(euler.x, -cameraHalfFovX/2*THREE.Math.DEG2RAD)
+	euler.y = Math.min(euler.y, +cameraHalfFovY*THREE.Math.DEG2RAD)
+	euler.y = Math.max(euler.y, -cameraHalfFovY*THREE.Math.DEG2RAD)
+	console.log('euler.y =', (euler.y*THREE.Math.RAD2DEG).toFixed(3), 'euler.x =', (euler.x*THREE.Math.RAD2DEG).toFixed(3))
+	uiQuaternion.copy( new THREE.Quaternion().setFromEuler(euler)  )
+		.multiply( camera.quaternion )
+	updateUIObjectPoseWithQuaternion(uiObject, uiQuaternion)
+
+	// 
+	// var euler = new THREE.Euler().setFromQuaternion(gazeToUIQuaternion, 'YXZ')
+	// console.log('eulerY =', (euler.y*THREE.Math.RAD2DEG).toFixed(3), 'euler.x =', (euler.x*THREE.Math.RAD2DEG).toFixed(3))
+	// // console.log('euler.y', euler.y*THREE.Math.RAD2DEG)
 	var isVisibleX = Math.abs(euler.y) < cameraHalfFovX*THREE.Math.DEG2RAD
 	var isVisibleY = Math.abs(euler.x) < cameraHalfFovY*THREE.Math.DEG2RAD
-	console.log('isVisibleX =', isVisibleX, 'isVisibleY =', isVisibleY)
+	// console.log('isVisibleX =', isVisibleX, 'isVisibleY =', isVisibleY)
 
 	// eulerY = Math.min(eulerY, cameraHalfFovX*THREE.Math.DEG2RAD)¡
-	
-	// euler.x = 0
-	// euler.y = cameraHalfFovY*THREE.Math.DEG2RAD
+	// 
+	// euler.y = Math.round(euler.y*1000)/1000
+	// // euler.x = 0
+	// // euler.y = cameraHalfFovY*THREE.Math.DEG2RAD
 	// euler.y = Math.min(euler.y, +cameraHalfFovY*THREE.Math.DEG2RAD)
 	// euler.y = Math.max(euler.y, -cameraHalfFovY*THREE.Math.DEG2RAD)
 	// console.log('eulerY =', (euler.y*THREE.Math.RAD2DEG).toFixed(3), 'euler.x =', (euler.x*THREE.Math.RAD2DEG).toFixed(3))
+	// 
 	
-	
-	var newEuler = new THREE.Euler(euler.x, euler.y, euler.z, 'XYZ')
-	uiQuaternion.copy( camera.quaternion )
-		.multiply( new THREE.Quaternion().setFromEuler(newEuler) )
+	// uiQuaternion.copy( camera.quaternion )
+	// 	.multiply( new THREE.Quaternion().setFromEuler(newEuler) )
 	// uiQuaternion.copy( new THREE.Quaternion().setFromEuler(newEuler)  )
+	// uiQuaternion.copy( gazeToUIQuaternion  )
 	// 	.multiply( camera.quaternion )
-	updateUIObjectPoseWithQuaternion(uiObject, uiQuaternion)
+	// updateUIObjectPoseWithQuaternion(uiObject, uiQuaternion)
 
 	// var euler = new THREE.Euler().set(eulerX, 0, 0, 'XYZ')
 	// // var euler = new THREE.Euler().set(0, eulerY, 0, 'XYZ')
