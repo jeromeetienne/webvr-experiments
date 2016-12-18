@@ -107,7 +107,7 @@ THREE.VREffect = function( renderer, onError ) {
 	var defaultRightBounds = [ 0.5, 0.0, 0.5, 1.0 ];
 
 	function onVRDisplayPresentChange() {
-
+console.log('onVRDisplayPresentChange')
 		var wasPresenting = scope.isPresenting;
 		scope.isPresenting = vrDisplay !== undefined && vrDisplay.isPresenting;
 
@@ -231,6 +231,8 @@ THREE.VREffect = function( renderer, onError ) {
 	cameraR.layers.enable( 2 );
 
 	this.render = function( scene, camera, renderTarget, forceClear ) {
+
+		
 
 		if ( vrDisplay && scope.isPresenting ) {
 

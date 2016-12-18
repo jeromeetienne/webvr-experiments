@@ -127,7 +127,7 @@
 				renderer.sortObjects = false;
 				container.appendChild( renderer.domElement );
 
-				controls = new THREE.VRControls( camera );
+				// controls = new THREE.VRControls( camera );
 				effect = new THREE.VREffect( renderer );
 
 				if ( navigator.getVRDisplays ) {
@@ -135,7 +135,7 @@
 					navigator.getVRDisplays()
 						.then( function ( displays ) {
 							effect.setVRDisplay( displays[ 0 ] );
-							controls.setVRDisplay( displays[ 0 ] );
+							//controls.setVRDisplay( displays[ 0 ] );
 						} )
 						.catch( function () {
 							// no displays
@@ -268,7 +268,7 @@
 
 				}
 
-				controls.update();
+				// controls.update();
 				effect.render( scene, camera );
 
 			}

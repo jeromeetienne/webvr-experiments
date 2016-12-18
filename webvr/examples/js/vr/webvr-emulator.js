@@ -25,14 +25,19 @@ window.VRFrameData = function(){
 	this.rightProjectionMatrix = new Float32Array(16)
 	this.rightViewMatrix = new Float32Array(16)
 
+
+	var tmpCamera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 10 );
+	tmpCamera.projectionMatrix.toArray(this.leftProjectionMatrix)
+	tmpCamera.projectionMatrix.toArray(this.rightProjectionMatrix)
+
 	this.pose = new VRPose()
 	
-	// compute pose from rightViewMatrix
-	var rightViewMatrix = new THREE.Matrix4().fromArray(rightViewMatrix)
-	var cameraTransformMatrix = new THREE.Matrix4().getInverse( rightViewMatrix )
+	// compute pose from leftViewMatrix
+	var leftViewMatrix = new THREE.Matrix4().fromArray(this.leftViewMatrix)
+	var cameraTransformMatrix = new THREE.Matrix4().getInverse( leftViewMatrix )
 
 	var cameraPosition = new THREE.Vector3()
-	var cameraQuaternion = new THREE.Vector3()
+	var cameraQuaternion = new THREE.Quaternion()
 	cameraTransformMatrix.decompose(cameraPosition, cameraQuaternion, new THREE.Vector3)
 	
 	cameraPosition.toArray(this.pose.position)
@@ -42,11 +47,19 @@ window.VRFrameData = function(){
 window.VREyeParameters = function(whichEye){
 	this.offset = new Float32Array([0,0,0])
 
+	if( whichEye === 'right' ){
+		this.offset[0]	= + 0.03
+	}else if( whichEye === 'left' ){
+		this.offset[0]	= - 0.03
+	}else {
+		console.assert(false)
+	}
+
 	this.fieldOfView = { // Deprecated
-		upDegrees : +45,
-		rightDegrees : +45,
-		downDegrees : -45,
-		leftDegrees : -45,
+		upDegrees : +30,
+		rightDegrees : +30,
+		downDegrees : -30,
+		leftDegrees : -30,
 	}
 
 	this.renderWidth = window.innerWidth/2
@@ -80,45 +93,69 @@ window.VRDisplay = function(){
 
 	this.vrPose = new VRPose()
 	
-	this.getFrameData = function(frameData){
-		
-	}
-	this.getEyeParameters = function(whichEye){
-		var eyeParameters = new VREyeParameters()
-		
-		if( whichEye === 'right' ){
-			eyeParameters.offset[0]	= + 0.03
-		}else if( whichEye === 'left' ){
-			eyeParameters.offset[0]	= - 0.03
-		}else {
-			console.assert(false)
-		}
-		
-	}
-	
-	this.getPose = function(){	// Deprecated - https://w3c.github.io/webvr/#dom-vrdisplay-getpose
-		
-	}
-	this.resetPose = function(frameData){
-		
-	}
+}
 
-	this.requestAnimationFrame = function(callback){
-		return window.requestAnimationFrame(callback)
-	}
-	this.cancelAnimationFrame = function(handle){
-		return window.cancelAnimationFrame(handle)		
-	}
-
-	this.requestPresent = function(layers){
-		
-	}
-	this.exitPresent = function(){
-		
-	}
+VRDisplay.prototype.getFrameData = function(frameData){
+	console.log('getFrameData')
+}
+VRDisplay.prototype.getEyeParameters = function(whichEye){
+	console.log('getEyeParameters', whichEye)
+	var eyeParameters = new VREyeParameters(whichEye)
+	return eyeParameters
+}
 	
-	// https://w3c.github.io/webvr/#dom-vrdisplay-submitframe
-	this.submitFrame = function(){
-		
-	}
+VRDisplay.prototype.getPose = function(){	// Deprecated - https://w3c.github.io/webvr/#dom-vrdisplay-getpose
+	console.assert('not yet implemented')
+}
+VRDisplay.prototype.resetPose = function(frameData){
+	console.assert('not yet implemented')
+}
+
+VRDisplay.prototype.requestAnimationFrame = function(callback){
+	console.log('requestAnimationFrame')
+	return window.requestAnimationFrame(callback)
+}
+VRDisplay.prototype.cancelAnimationFrame = function(handle){
+	console.log('cancelAnimationFrame')
+	return window.cancelAnimationFrame(handle)		
+}
+
+VRDisplay.prototype.getLayers = function(){
+	return []
+	console.log('vrDisplay.getLayers()')
+	return this._layers
+}
+
+VRDisplay.prototype.requestPresent = function(layers){
+	var _this = this
+	this._layers = layers
+	console.log('requestPresent', layers)
+	console.trace()
+	return new Promise(function(resolve, reject) {
+		_this.isPresenting = true
+
+		var event = new Event('vrdisplaypresentchange');
+		window.dispatchEvent(event);
+
+		resolve();
+	})
+}
+
+VRDisplay.prototype.exitPresent = function(){
+	var _this = this
+	console.log('exitPresent')		
+	
+	return new Promise(function(resolve, reject) {
+		_this.isPresenting = false
+
+		var event = new Event('vrdisplaypresentchange');
+		window.dispatchEvent(event);
+
+		resolve();
+	})
+}
+	
+// https://w3c.github.io/webvr/#dom-vrdisplay-submitframe
+VRDisplay.prototype.submitFrame = function(){
+	console.log('submitFrame')				
 }
