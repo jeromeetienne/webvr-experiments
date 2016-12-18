@@ -17,6 +17,7 @@ window.VRPose = function(){	// https://w3c.github.io/webvr/#interface-vrpose
 }
 
 window.VRFrameData = function(){
+	var frameData = this
 	// https://w3c.github.io/webvr/#vrframedata
 	this.timestamp = Date.now()
 
@@ -25,23 +26,43 @@ window.VRFrameData = function(){
 	this.rightProjectionMatrix = new Float32Array(16)
 	this.rightViewMatrix = new Float32Array(16)
 
+	this.pose = {}
+	this.pose.position = new Float32Array([0,0,0])
+	// this.pose.linearVelocity = new Float32Array([0,0,0])
+	// this.pose.linearAcceleration = new Float32Array([0,0,0])
 
-	var tmpCamera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 10 );
+	this.pose.orientation = new Float32Array([0, 0, 0, 1])
+	// this.pose.angularVelocity = new Float32Array([0, 0, 0, 1])
+	// this.pose.angularAcceleration = new Float32Array([0, 0, 0, 1])
+
+	this.update()
+}
+
+VRFrameData.prototype.update = function(){
+
+	var angle  = Math.PI/32
+	var matrix = new THREE.Matrix4().compose(
+		new THREE.Vector3(0,1,0),
+		new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1), angle),
+		new THREE.Vector3(1,1,1)
+	)
+	matrix.toArray(this.leftViewMatrix)
+
+	// fill silly projectionMaterix
+	var tmpCamera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight /2, 0.1, 10 );
 	tmpCamera.projectionMatrix.toArray(this.leftProjectionMatrix)
 	tmpCamera.projectionMatrix.toArray(this.rightProjectionMatrix)
 
-	this.pose = new VRPose()
-	
-	// compute pose from leftViewMatrix
+	// compute cameraTransformMatrix from leftViewMatrix
 	var leftViewMatrix = new THREE.Matrix4().fromArray(this.leftViewMatrix)
 	var cameraTransformMatrix = new THREE.Matrix4().getInverse( leftViewMatrix )
 
+	// set pose.position and pose.orientation from cameraTransformMatrix decomposition
 	var cameraPosition = new THREE.Vector3()
 	var cameraQuaternion = new THREE.Quaternion()
 	cameraTransformMatrix.decompose(cameraPosition, cameraQuaternion, new THREE.Vector3)
-	
 	cameraPosition.toArray(this.pose.position)
-	cameraQuaternion.toArray(this.pose.quaternion)
+	cameraQuaternion.toArray(this.pose.orientation)	
 }
 
 window.VREyeParameters = function(whichEye){
@@ -97,6 +118,7 @@ window.VRDisplay = function(){
 
 VRDisplay.prototype.getFrameData = function(frameData){
 	console.log('getFrameData')
+	frameData.update()
 }
 VRDisplay.prototype.getEyeParameters = function(whichEye){
 	console.log('getEyeParameters', whichEye)

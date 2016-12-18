@@ -250,7 +250,7 @@ console.log('onVRDisplayPresentChange')
 
 			eyeTranslationL.fromArray( eyeParamsL.offset );
 			eyeTranslationR.fromArray( eyeParamsR.offset );
-
+console.log('eyeTranslationL', eyeTranslationL)
 			if ( Array.isArray( scene ) ) {
 
 				console.warn( 'THREE.VREffect.render() no longer supports arrays. Use object.layers instead.' );

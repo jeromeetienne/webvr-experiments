@@ -110,7 +110,7 @@ THREE.VRControls = function ( object, onError ) {
 			if ( pose.position !== null ) {
 
 				object.position.fromArray( pose.position );
-
+// console.log('oibject.position', object.position)
 			} else {
 
 				object.position.set( 0, 0, 0 );
