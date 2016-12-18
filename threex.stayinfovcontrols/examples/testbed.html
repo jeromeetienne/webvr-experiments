@@ -252,7 +252,7 @@ scene.add(uiObject);
 var uiQuaternion = new THREE.Quaternion()
 // uiQuaternion.copy(camera.quaternion)
 // 
-var euler = new THREE.Euler().set(0*THREE.Math.DEG2RAD, 20*THREE.Math.DEG2RAD, 0, 'YXZ')
+var euler = new THREE.Euler().set(0*THREE.Math.DEG2RAD, 10*THREE.Math.DEG2RAD, 0, 'YXZ')
 uiQuaternion.multiply(new THREE.Quaternion().setFromEuler(euler))
 
 updateUIObjectPoseWithQuaternion(uiObject, uiQuaternion)
@@ -305,15 +305,23 @@ onRenderFcts.push(function(){
 	var gazeToUIQuaternion = camera.quaternion.clone().inverse()
 		.multiply( uiQuaternion )
 		.normalize()
-	var euler = new THREE.Euler().setFromQuaternion(gazeToUIQuaternion, 'YXZ')
+	var eulerX = new THREE.Euler().setFromQuaternion(gazeToUIQuaternion, 'XYZ').x
+	var eulerY = new THREE.Euler().setFromQuaternion(gazeToUIQuaternion, 'YXZ').y
+	var euler = new THREE.Euler(eulerX, eulerY, 0, 'XYZ')
 	console.log('euler.y =', (euler.y*THREE.Math.RAD2DEG).toFixed(3), 'euler.x =', (euler.x*THREE.Math.RAD2DEG).toFixed(3))
-	// euler.x = Math.min(euler.x, +cameraHalfFovX/2*THREE.Math.DEG2RAD)
-	// euler.x = Math.max(euler.x, -cameraHalfFovX/2*THREE.Math.DEG2RAD)
-	euler.y = Math.min(euler.y, +cameraHalfFovY*THREE.Math.DEG2RAD)
-	euler.y = Math.max(euler.y, -cameraHalfFovY*THREE.Math.DEG2RAD)
+	euler.x = Math.min(euler.x, +cameraHalfFovY*THREE.Math.DEG2RAD)
+	euler.x = Math.max(euler.x, -cameraHalfFovY*THREE.Math.DEG2RAD)
+	euler.y = Math.min(euler.y, +cameraHalfFovX*THREE.Math.DEG2RAD)
+	euler.y = Math.max(euler.y, -cameraHalfFovX*THREE.Math.DEG2RAD)
+	
+	// euler.y = -cameraHalfFovX*THREE.Math.DEG2RAD
 	// console.log('euler.y =', (euler.y*THREE.Math.RAD2DEG).toFixed(3), 'euler.x =', (euler.x*THREE.Math.RAD2DEG).toFixed(3))
 	uiQuaternion.copy( camera.quaternion )
+		// .multiply( gazeToUIQuaternion )
 		.multiply( new THREE.Quaternion().setFromEuler(euler) )
+		// .multiply( new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1,0), euler.y).normalize() )
+		// .multiply( new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0,0), euler.x).normalize() )
+		// .multiply( camera.quaternion )
 		.normalize()
 	updateUIObjectPoseWithQuaternion(uiObject, uiQuaternion)
 
