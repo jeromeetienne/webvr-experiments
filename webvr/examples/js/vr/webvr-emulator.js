@@ -42,7 +42,7 @@ VRFrameData.prototype.update = function(){
 
 	var angle  = Math.PI/32
 	var matrix = new THREE.Matrix4().compose(
-		new THREE.Vector3(0,1,0),
+		new THREE.Vector3(0,0,0),
 		new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1), angle),
 		new THREE.Vector3(1,1,1)
 	)
